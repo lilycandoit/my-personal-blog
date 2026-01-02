@@ -2,8 +2,13 @@ import { prisma } from '../src/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  const email = 'admin@example.com';
-  const password = 'password123'; // Change this!
+  // Use environment variables for credentials
+  const email = process.env.ADMIN_EMAIL || 'admin@example.com';
+  const password = process.env.ADMIN_PASSWORD || 'password123';
+
+  if (password === 'password123') {
+    console.warn('⚠️  WARNING: Using default password! Set ADMIN_PASSWORD env variable.');
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
