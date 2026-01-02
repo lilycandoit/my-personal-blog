@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Personal Thinking Space
 
-## Getting Started
+A minimal, file-based personal blog built with Next.js (App Router).
 
-First, run the development server:
+## 🌟 Philosophy
+- **Public by default**: A space for thinking and learning.
+- **Minimal & Calm**: Blue aesthetic, ample whitespace, handwriting fonts for warmth.
+- **No Database**: Content lives in Markdown files.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Getting Started
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Run local server**:
+   ```bash
+   npm run dev
+   ```
+
+3. **Open**: [http://localhost:3000](http://localhost:3000)
+
+## 📁 Content Management
+
+This site is a static, file-based CMS. No admin panel, just files.
+
+### Adding a Post
+Create a new Markdown file in `content/posts/`.
+The filename becomes the URL slug (e.g., `my-post.md` -> `/posts/my-post`).
+
+**Required Frontmatter:**
+```markdown
+---
+title: My Post Title
+date: "Dec 30, 2025 — 9:00 PM"
+category: Learning
+---
 ```
+*Categories: Learning, Life, Moments*
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Adding a Project
+Create a new Markdown file in `content/projects/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Required Frontmatter:**
+```markdown
+---
+name: Project Name
+description: Short one-line description.
+stack: React, Node.js
+status: learning
+learned: One sentence on what you learned.
+links:
+  github: https://github.com...
+  demo: https://example.com
+---
+```
+*Status: learning, finished, paused*
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔍 Search Implementation
+Search is **Client-Side** and **Database-Free**.
+1. **Index**: A server API route (`/api/search`) reads all Markdown files at runtime and returns a JSON array of titles, descriptions, and content.
+2. **Client**: The `Search` component fetches this JSON lazily (only when you interact with search).
+3. **Engine**: We use `Fuse.js` for fuzzy, typo-tolerant searching on the client.
 
-## Learn More
+## 🎨 Styling
+Styles are defined in `src/app/globals.css`.
+- **CSS Variables**: define the color palette (`--color-primary`, `--color-bg`, etc).
+- **Fonts**:
+  - `Patrick Hand` (Google Font) for body text (Handwriting feel).
+  - `Inter` (Google Font) for UI elements (Headings, metadata).
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To change the "Blue" theme, purely edit the `:root` variables in `globals.css`.
