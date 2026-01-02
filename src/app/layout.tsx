@@ -30,13 +30,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${patrickHand.variable} ${inter.variable}`}>
         <NextAuthProvider>
-          <div className="container">
-            <Navbar />
-            <main style={{ flex: 1, width: '100%' }}>{children}</main>
-            <Footer />
-          </div>
+          {children}
         </NextAuthProvider>
       </body>
     </html>
   );
 }
+

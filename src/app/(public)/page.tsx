@@ -11,27 +11,27 @@ export default async function Home() {
   return (
     <div>
       <section style={{ marginBottom: '4rem' }}>
-        <h1 style={{ marginBottom: '1.5rem', fontSize: '3rem', color: 'var(--color-primary)' }}>Hello.</h1>
-        <p style={{ fontSize: '1.5rem', maxWidth: '480px' }}>
-          Welcome to my personal thinking space. <br/>
+        <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem', color: 'var(--color-primary)' }}>Hello.</h1>
+        <p style={{ fontSize: '1.25rem', maxWidth: '100%' }}>
+          Welcome to my space! <br/>
           I write here to learn, reflect, and document my journey in code and life.
         </p>
       </section>
 
       <div style={{ display: 'flex', gap: '2rem', marginBottom: '4rem' }}>
         <Link href="/posts" style={{ fontSize: '1.25rem', fontWeight: 600, borderBottomWidth: '2px' }}>
-          Read Posts
+          Start reading
         </Link>
         <Link href="/projects" style={{ fontSize: '1.25rem', fontWeight: 600, borderBottomWidth: '2px' }}>
-          View Projects
+        My projects
         </Link>
       </div>
 
       {recentPost && (
         <section>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', margin: 0, color: 'var(--color-muted)', fontWeight: 500, fontFamily: 'var(--font-ui)' }}>LATEST POST</h2>
-            <Link href="/posts" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', border: 'none' }}>View all &rarr;</Link>
+            <h2 style={{ fontSize: '1.25rem', margin: 0, color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-ui)' }}>LATEST POST</h2>
+            <Link href="/posts" style={{ fontSize: '1.25rem', color: 'var(--color-primary)', border: 'none' }}>View all &rarr;</Link>
           </div>
 
           <div className="post-item">

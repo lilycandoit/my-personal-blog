@@ -1,10 +1,11 @@
 export default function Footer() {
   return (
     <footer>
-      <p style={{ opacity: 0.6 }}>
+      <p style={{ fontSize: '1.1rem', color: 'var(--color-muted)', textAlign: 'center' }}>
         © {new Date().getFullYear()} — specific time, distinct place. <br/>
-        <span style={{ fontSize: '0.8em' }}>Quietly building in the open.</span>
+        <span>Quietly building in the open.</span>
       </p>
     </footer>
+
   );
 }

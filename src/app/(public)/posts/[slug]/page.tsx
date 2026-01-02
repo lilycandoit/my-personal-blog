@@ -40,7 +40,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         />
 
         <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
-             <a href="/posts" style={{ fontSize: '0.9rem', color: 'var(--color-muted)', border: 'none' }}>&larr; Back to all posts</a>
+             <a href="/posts" style={{ fontSize: '1.1rem', color: 'var(--color-muted)', border: 'none' }}>&larr; Back to all posts</a>
         </div>
     </article>
   );

@@ -16,7 +16,7 @@ export default async function ProjectsPage() {
   return (
     <div>
       <h1 style={{ marginBottom: '1.5rem' }}>Projects</h1>
-      <p style={{ marginBottom: '3rem', fontSize: '1.3rem', color: 'var(--color-muted)', maxWidth: '600px' }}>
+      <p style={{ marginBottom: '3rem', fontSize: '1.3rem', color: 'var(--color-muted)', maxWidth: '100%' }}>
           This is a learning log, not a showcase. Here are the things I've built to understand how things work.
       </p>
 
@@ -29,12 +29,12 @@ export default async function ProjectsPage() {
                         <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--color-primary)' }}>{project.name}</h2>
                      </Link>
                      <span style={{
-                         fontSize: '0.75rem',
+                         fontSize: '0.85rem',
                          padding: '4px 10px',
                          borderRadius: '20px',
                          background: project.status === 'completed' ? '#dcfce7' : '#f1f5f9',
                          color: project.status === 'completed' ? '#166534' : '#475569',
-                         fontWeight: 600,
+                         fontWeight: 700,
                          fontFamily: 'var(--font-ui)'
                      }}>
                         {project.status}

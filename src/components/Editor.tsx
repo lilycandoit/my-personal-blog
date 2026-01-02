@@ -76,7 +76,15 @@ const MenuBar = ({ editor }: { editor: any }) => {
   )
 }
 
+import { useEffect, useState } from 'react';
+
 export default function Editor({ value, onChange }: EditorProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -95,19 +103,23 @@ export default function Editor({ value, onChange }: EditorProps) {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    immediatelyRender: false,
   });
 
+
+  if (!isMounted) return <div style={{ minHeight: '300px', background: '#f8f9fa' }} />;
+
   return (
-    <div className="editor-wrapper" style={{ border: '1px solid var(--color-border)', borderRadius: '12px', overflow: 'hidden', background: 'white', transition: 'border-color 0.2s' }}>
+    <div className="editor-wrapper" style={{
+        border: '1px solid var(--color-border)',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        background: 'white',
+    }}>
       <MenuBar editor={editor} />
       <EditorContent editor={editor} />
-      <style jsx global>{`
-        .editor-wrapper:focus-within {
-          border-color: var(--color-primary) !important;
-          box-shadow: 0 0 0 4px rgba(93, 156, 236, 0.1);
-        }
-      `}</style>
     </div>
   );
 }
+
 

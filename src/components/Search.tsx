@@ -66,7 +66,7 @@ export default function Search() {
         alignItems: 'center',
         border: '1px solid var(--color-border)',
         borderRadius: '12px',
-        padding: '6px 12px',
+        padding: '0px 12px',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         backdropFilter: 'blur(8px)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
