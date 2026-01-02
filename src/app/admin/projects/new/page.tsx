@@ -2,6 +2,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Editor from '@/components/Editor';
+import ImageUploader from '@/components/ImageUploader';
+
+interface UploadedImage {
+  id: string;
+  url: string;
+  filename: string;
+  size: number;
+  width?: number;
+  height?: number;
+}
 
 export default function NewProject() {
   const [name, setName] = useState('');
@@ -11,6 +21,9 @@ export default function NewProject() {
   const [learnings, setLearnings] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [demoUrl, setDemoUrl] = useState('');
+  const [demoVideoUrl, setDemoVideoUrl] = useState('');
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -18,10 +31,23 @@ export default function NewProject() {
     e.preventDefault();
     setLoading(true);
 
+    const imageIds = images.map(img => img.id);
+
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, description, stack, status, learnings, githubUrl, demoUrl }),
+      body: JSON.stringify({
+        name,
+        description,
+        stack,
+        status,
+        learnings,
+        githubUrl,
+        demoUrl,
+        demoVideoUrl,
+        imageIds,
+        coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
+      }),
     });
 
     if (res.ok) {
@@ -97,6 +123,42 @@ export default function NewProject() {
                 <input type="url" value={demoUrl} onChange={e => setDemoUrl(e.target.value)} />
              </div>
         </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Demo Video URL (Optional)</label>
+          <input
+            type="url"
+            placeholder="YouTube or Vimeo link"
+            value={demoVideoUrl}
+            onChange={e => setDemoVideoUrl(e.target.value)}
+          />
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+            For longer demos, paste a YouTube/Vimeo link
+          </p>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Images</label>
+          <ImageUploader images={images} onImagesChange={setImages} maxImages={10} />
+        </div>
+
+        {images.length > 0 && (
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Cover Image</label>
+            <select
+              value={coverImageId}
+              onChange={e => setCoverImageId(e.target.value)}
+              style={{ maxWidth: '300px' }}
+            >
+              <option value="">Auto (first image)</option>
+              {images.map(img => (
+                <option key={img.id} value={img.id}>
+                  {img.filename}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end' }}>
             <button

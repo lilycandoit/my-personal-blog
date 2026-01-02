@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -15,25 +16,49 @@ model User {
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String
-  content   String   // Rich text HTML/JSON
-  category  String   // Learning, Life, Moments
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  content      String   // Rich text HTML/JSON
+  category     String   // Learning, Life, Moments
+  coverImageId String?
+  images       Image[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  description String   // Rich text
-  stack       String
-  status      String   // learning, completed, experimenting
-  learnings   String
-  githubUrl   String?
-  demoUrl     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String   // Rich text
+  stack        String
+  status       String   // learning, completed, experimenting
+  learnings    String
+  githubUrl    String?
+  demoUrl      String?
+  demoVideoUrl String?  // YouTube/Vimeo link
+  coverImageId String?
+  images       Image[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String   // Vercel Blob URL
+  filename  String   // Original filename
+  size      Int      // File size in bytes
+  mimeType  String   // image/jpeg, image/png, etc.
+  width     Int?     // Image dimensions
+  height    Int?
+  alt       String?  // Accessibility text
+  createdAt DateTime @default(now())
+
+  // Relations
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

@@ -12,6 +12,9 @@ const projectSchema = z.object({
   learnings: z.string().optional().default(''),
   githubUrl: z.string().url().optional().or(z.literal('')),
   demoUrl: z.string().url().optional().or(z.literal('')),
+  demoVideoUrl: z.string().url().optional().or(z.literal('')),
+  imageIds: z.array(z.string()).optional().default([]),
+  coverImageId: z.string().nullable().optional(),
 });
 
 export async function POST(req: Request) {
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = projectSchema.parse(body);
 
-    const { name, description, stack, status, learnings, githubUrl, demoUrl } = validatedData;
+    const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, imageIds, coverImageId } = validatedData;
 
     const project = await prisma.project.create({
       data: {
@@ -33,7 +36,12 @@ export async function POST(req: Request) {
         learnings,
         githubUrl: githubUrl || null,
         demoUrl: demoUrl || null,
+        demoVideoUrl: demoVideoUrl || null,
+        coverImageId: coverImageId || null,
         slug: slugify(name),
+        images: {
+          connect: imageIds?.map(id => ({ id })) || [],
+        },
       },
     });
     return NextResponse.json(project);

@@ -2,11 +2,23 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Editor from '@/components/Editor';
+import ImageUploader from '@/components/ImageUploader';
+
+interface UploadedImage {
+  id: string;
+  url: string;
+  filename: string;
+  size: number;
+  width?: number;
+  height?: number;
+}
 
 export default function NewPost() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
   const [content, setContent] = useState('');
+  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -14,10 +26,18 @@ export default function NewPost() {
     e.preventDefault();
     setLoading(true);
 
+    const imageIds = images.map(img => img.id);
+
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, category, content }),
+      body: JSON.stringify({
+        title,
+        category,
+        content,
+        imageIds,
+        coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
+      }),
     });
 
     if (res.ok) {
@@ -60,6 +80,29 @@ export default function NewPost() {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Content</label>
             <Editor value={content} onChange={setContent} />
         </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Images</label>
+          <ImageUploader images={images} onImagesChange={setImages} maxImages={10} />
+        </div>
+
+        {images.length > 0 && (
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Cover Image</label>
+            <select
+              value={coverImageId}
+              onChange={e => setCoverImageId(e.target.value)}
+              style={{ maxWidth: '300px' }}
+            >
+              <option value="">Auto (first image)</option>
+              {images.map(img => (
+                <option key={img.id} value={img.id}>
+                  {img.filename}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end' }}>
             <button

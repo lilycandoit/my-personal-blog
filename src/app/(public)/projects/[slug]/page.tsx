@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
+import Image from 'next/image';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function Project({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({ where: { slug }});
+  const project = await prisma.project.findUnique({
+    where: { slug },
+    include: {
+      images: true,
+    },
+  });
 
 
   if (!project) {
@@ -42,9 +48,53 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
             </div>
         </header>
 
-        {/* Since content wasn't in original project schema but 'description' was rich text,
-            I'll assume description IS the content if no separate content field exists.
-            The schema has 'description' as rich text. */}
+        {/* Demo Video */}
+        {project.demoVideoUrl && (
+          <div style={{ marginBottom: '3rem' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Demo Video</h2>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '8px' }}>
+              <iframe
+                src={project.demoVideoUrl.replace('watch?v=', 'embed/')}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Project Images */}
+        {project.images && project.images.length > 0 && (
+          <div style={{ marginBottom: '3rem' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Project Gallery</h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '1.5rem',
+            }}>
+              {project.images.map((image) => (
+                <div
+                  key={image.id}
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '16/9',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: '1px solid var(--color-border)',
+                  }}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.alt || image.filename}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
              <a href="/projects" style={{ fontSize: '0.9rem', color: 'var(--color-muted)', border: 'none' }}>&larr; Back to all projects</a>
