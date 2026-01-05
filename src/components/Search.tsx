@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Fuse from 'fuse.js';
 import Link from 'next/link';
 import { Search as SearchIcon, X, FileText, FolderCode } from 'lucide-react';
@@ -26,14 +26,15 @@ export default function Search() {
     }
   }, [isOpen, data.length]);
 
-  const fuse = new Fuse(data, {
+  // Recreate fuse instance whenever data changes
+  const fuse = useMemo(() => new Fuse(data, {
     keys: [
       { name: 'title', weight: 1 },
       { name: 'content', weight: 0.5 }
     ],
     threshold: 0.4,
     ignoreLocation: true,
-  });
+  }), [data]);
 
   useEffect(() => {
     if (query.trim() === '') {
@@ -42,7 +43,7 @@ export default function Search() {
       const result = fuse.search(query);
       setResults(result.slice(0, 5).map(r => r.item));
     }
-  }, [query, data]);
+  }, [query, fuse]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,7 +61,7 @@ export default function Search() {
   };
 
   return (
-    <div className="relative" ref={searchRef}>
+    <div style={{ position: 'relative' }} ref={searchRef}>
       <div className="search-bar" style={{
         display: 'flex',
         alignItems: 'center',
@@ -105,13 +106,14 @@ export default function Search() {
           top: 'calc(100% + 12px)',
           right: 0,
           width: '320px',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          maxHeight: '400px',
+          overflowY: 'auto',
+          backgroundColor: 'white',
           backdropFilter: 'blur(16px)',
           border: '1px solid var(--color-border)',
           borderRadius: '16px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-          zIndex: 100,
-          overflow: 'hidden'
+          boxShadow: '0 10px 40px -5px rgba(0, 0, 0, 0.2), 0 8px 16px -8px rgba(0, 0, 0, 0.2)',
+          zIndex: 1000
         }}>
           {results.length > 0 ? (
             results.map((item, idx) => (
