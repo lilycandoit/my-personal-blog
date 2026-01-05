@@ -69,28 +69,24 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Project Gallery</h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
               gap: '1.5rem',
             }}>
               {project.images.map((image) => (
-                <div
+                <Image
                   key={image.id}
+                  src={image.url}
+                  alt={image.alt || image.filename}
+                  width={image.width || 500}
+                  height={image.height || 350}
                   style={{
-                    position: 'relative',
-                    aspectRatio: '16/9',
+                    width: '100%',
+                    height: 'auto',
                     borderRadius: '8px',
-                    overflow: 'hidden',
                     border: '1px solid var(--color-border)',
                   }}
-                >
-                  <Image
-                    src={image.url}
-                    alt={image.alt || image.filename}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               ))}
             </div>
           </div>

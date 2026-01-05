@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { put } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
 import sharp from 'sharp';
 import { prisma } from '@/lib/prisma';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Allowed image types
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -10,11 +17,11 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if Blob token is configured
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.error('BLOB_READ_WRITE_TOKEN is not configured');
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('Cloudinary credentials not configured');
       return NextResponse.json(
-        { error: 'Server configuration error: BLOB_READ_WRITE_TOKEN not set' },
+        { error: 'Server configuration error: Cloudinary credentials not set' },
         { status: 500 }
       );
     }
@@ -73,27 +80,42 @@ export async function POST(request: NextRequest) {
     // Generate unique filename
     const timestamp = Date.now();
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}-${sanitizedFilename}`;
+    const publicId = `blog/${timestamp}-${sanitizedFilename.replace(/\.[^/.]+$/, '')}`; // Remove extension for public_id
 
-    // Upload to Vercel Blob
-    let blob;
+    // Upload to Cloudinary
+    let uploadResult;
     try {
-      blob = await put(filename, buffer, {
-        access: 'public',
-        contentType: file.type,
+      uploadResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            public_id: publicId,
+            folder: 'blog',
+            resource_type: 'image',
+            quality: 'auto:good', // Automatic quality optimization
+            fetch_format: 'auto', // Automatic format conversion (WebP, AVIF)
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(buffer);
       });
-    } catch (blobError) {
-      console.error('Vercel Blob upload error:', blobError);
+    } catch (cloudinaryError) {
+      console.error('Cloudinary upload error:', cloudinaryError);
       return NextResponse.json(
-        { error: `Blob upload failed: ${blobError instanceof Error ? blobError.message : 'Unknown error'}` },
+        { error: `Upload failed: ${cloudinaryError instanceof Error ? cloudinaryError.message : 'Unknown error'}` },
         { status: 500 }
       );
     }
 
+    // Type assertion for upload result
+    const result = uploadResult as { secure_url: string; public_id: string };
+
     // Save to database
     const image = await prisma.image.create({
       data: {
-        url: blob.url,
+        url: result.secure_url,
         filename: file.name,
         size: file.size,
         mimeType: file.type,

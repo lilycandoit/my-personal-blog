@@ -41,23 +41,20 @@ export default async function ProjectsPage() {
               }}>
                 {/* Cover Image */}
                 {coverImage && (
-                  <Link href={`/projects/${project.slug}`} style={{ border: 'none' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '100%',
-                      aspectRatio: '4/3',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--color-border)',
-                    }}>
-                      <Image
-                        src={coverImage.url}
-                        alt={coverImage.alt || project.name}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        sizes="300px"
-                      />
-                    </div>
+                  <Link href={`/projects/${project.slug}`} style={{ border: 'none', display: 'block' }}>
+                    <Image
+                      src={coverImage.url}
+                      alt={coverImage.alt || project.name}
+                      width={coverImage.width || 800}
+                      height={coverImage.height || 600}
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '8px',
+                        border: '1px solid var(--color-border)',
+                      }}
+                      sizes="300px"
+                    />
                   </Link>
                 )}
 

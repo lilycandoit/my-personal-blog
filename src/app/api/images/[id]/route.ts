@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { del } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
 import { prisma } from '@/lib/prisma';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function DELETE(
   request: NextRequest,
@@ -31,12 +39,35 @@ export async function DELETE(
       );
     }
 
-    // Delete from Vercel Blob
+    // Detect source and delete accordingly
+    const isCloudinary = image.url.includes('res.cloudinary.com');
+    const isBlob = image.url.includes('blob.vercel-storage.com');
+
     try {
-      await del(image.url);
+      if (isCloudinary) {
+        // Extract public_id from Cloudinary URL
+        // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/{transformations}/{public_id}.{format}
+        const urlParts = image.url.split('/');
+        const uploadIndex = urlParts.indexOf('upload');
+        if (uploadIndex !== -1 && uploadIndex + 1 < urlParts.length) {
+          // Get everything after 'upload/', including folder structure
+          const pathAfterUpload = urlParts.slice(uploadIndex + 1).join('/');
+          // Remove file extension
+          const publicId = pathAfterUpload.replace(/\.[^/.]+$/, '');
+
+          await cloudinary.uploader.destroy(publicId);
+          console.log(`Deleted from Cloudinary: ${publicId}`);
+        }
+      } else if (isBlob) {
+        // Delete from Vercel Blob
+        await del(image.url);
+        console.log(`Deleted from Blob: ${image.url}`);
+      } else {
+        console.warn(`Unknown image source: ${image.url}`);
+      }
     } catch (error) {
-      console.error('Error deleting from Blob storage:', error);
-      // Continue with DB deletion even if Blob deletion fails
+      console.error('Error deleting from storage:', error);
+      // Continue with DB deletion even if storage deletion fails
     }
 
     // Delete from database

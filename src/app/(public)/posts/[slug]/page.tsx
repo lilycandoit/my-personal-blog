@@ -38,21 +38,24 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
 
         {/* Cover Image */}
         {post.images && post.images.length > 0 && post.coverImageId && (
-          <div style={{ marginBottom: '2rem', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ marginBottom: '2rem' }}>
             {(() => {
               const coverImage = post.images.find(img => img.id === post.coverImageId);
               if (coverImage) {
                 return (
-                  <div style={{ position: 'relative', aspectRatio: '16/9' }}>
-                    <Image
-                      src={coverImage.url}
-                      alt={coverImage.alt || post.title}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, 800px"
-                      priority
-                    />
-                  </div>
+                  <Image
+                    src={coverImage.url}
+                    alt={coverImage.alt || post.title}
+                    width={coverImage.width || 800}
+                    height={coverImage.height || 600}
+                    style={{
+                      width: '100%',
+                      height: 'auto',
+                      borderRadius: '12px',
+                    }}
+                    sizes="(max-width: 768px) 100vw, 800px"
+                    priority
+                  />
                 );
               }
               return null;
@@ -73,30 +76,26 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gallery</h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '1rem',
             }}>
               {post.images
                 .filter(img => img.id !== post.coverImageId)
                 .map((image) => (
-                  <div
+                  <Image
                     key={image.id}
+                    src={image.url}
+                    alt={image.alt || image.filename}
+                    width={image.width || 400}
+                    height={image.height || 300}
                     style={{
-                      position: 'relative',
-                      aspectRatio: '4/3',
+                      width: '100%',
+                      height: 'auto',
                       borderRadius: '8px',
-                      overflow: 'hidden',
                       border: '1px solid var(--color-border)',
                     }}
-                  >
-                    <Image
-                      src={image.url}
-                      alt={image.alt || image.filename}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                  </div>
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
                 ))}
             </div>
           </div>

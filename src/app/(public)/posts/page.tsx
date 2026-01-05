@@ -37,23 +37,20 @@ export default async function PostsPage() {
               }}>
                 {/* Cover Image */}
                 {coverImage && (
-                  <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '100%',
-                      aspectRatio: '16/9',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--color-border)',
-                    }}>
-                      <Image
-                        src={coverImage.url}
-                        alt={coverImage.alt || post.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        sizes="250px"
-                      />
-                    </div>
+                  <Link href={`/posts/${post.slug}`} style={{ border: 'none', display: 'block' }}>
+                    <Image
+                      src={coverImage.url}
+                      alt={coverImage.alt || post.title}
+                      width={coverImage.width || 800}
+                      height={coverImage.height || 600}
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        borderRadius: '8px',
+                        border: '1px solid var(--color-border)',
+                      }}
+                      sizes="250px"
+                    />
                   </Link>
                 )}
 
