@@ -4,6 +4,8 @@ import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { slugify } from '@/lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
@@ -12,6 +14,22 @@ const postSchema = z.object({
   imageIds: z.array(z.string()).optional().default([]),
   coverImageId: z.string().nullable().optional(),
 });
+
+// GET - Fetch all posts
+export async function GET() {
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        images: true,
+      },
+    });
+    return NextResponse.json(posts);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
+  }
+}
 
 export async function POST(req: Request) {
   const session = await getServerSession();
