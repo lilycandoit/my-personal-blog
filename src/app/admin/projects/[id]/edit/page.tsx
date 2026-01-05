@@ -34,7 +34,7 @@ export default function EditProject() {
   useEffect(() => {
     async function fetchProject() {
       try {
-        const res = await fetch(\`/api/projects/\${projectId}\`);
+        const res = await fetch(`/api/projects/${projectId}`);
         if (!res.ok) throw new Error('Failed to fetch project');
 
         const project = await res.json();
@@ -66,7 +66,7 @@ export default function EditProject() {
     const imageIds = images.map(img => img.id);
 
     try {
-      const res = await fetch(\`/api/projects/\${projectId}\`, {
+      const res = await fetch(`/api/projects/${projectId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
