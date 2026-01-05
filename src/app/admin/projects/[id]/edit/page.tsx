@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
 
@@ -13,7 +13,9 @@ interface UploadedImage {
   height?: number;
 }
 
-export default function NewProject() {
+export default function EditProject() {
+  const params = useParams();
+  const projectId = params.id as string;
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [stack, setStack] = useState('');
@@ -25,53 +27,37 @@ export default function NewProject() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [draftLoaded, setDraftLoaded] = useState(false);
-  const hasPromptedRef = useRef(false);
+  const [fetching, setFetching] = useState(true);
   const router = useRouter();
 
-  // Restore draft on mount (only once)
+  // Fetch existing project data
   useEffect(() => {
-    // Prevent double prompt in React.StrictMode
-    if (hasPromptedRef.current) return;
-    hasPromptedRef.current = true;
-
-    const savedDraft = localStorage.getItem('project-draft');
-    if (savedDraft) {
+    async function fetchProject() {
       try {
-        const draft = JSON.parse(savedDraft);
-        // Only ask if there's actual content
-        if (draft.name || draft.description) {
-          if (confirm('Restore unsaved draft?')) {
-            setName(draft.name || '');
-            setDescription(draft.description || '');
-            setStack(draft.stack || '');
-            setStatus(draft.status || 'learning');
-            setLearnings(draft.learnings || '');
-            setGithubUrl(draft.githubUrl || '');
-            setDemoUrl(draft.demoUrl || '');
-            setDemoVideoUrl(draft.demoVideoUrl || '');
-            setImages(draft.images || []);
-            setCoverImageId(draft.coverImageId || '');
-          } else {
-            localStorage.removeItem('project-draft');
-          }
-        }
+        const res = await fetch(`/api/projects/${projectId}`);
+        if (!res.ok) throw new Error('Failed to fetch project');
+
+        const project = await res.json();
+        setName(project.name);
+        setDescription(project.description);
+        setStack(project.stack);
+        setStatus(project.status);
+        setLearnings(project.learnings || '');
+        setGithubUrl(project.githubUrl || '');
+        setDemoUrl(project.demoUrl || '');
+        setDemoVideoUrl(project.demoVideoUrl || '');
+        setImages(project.images || []);
+        setCoverImageId(project.coverImageId || '');
       } catch (error) {
-        console.error('Error loading draft:', error);
+        console.error('Error fetching project:', error);
+        alert('Error loading project');
+      } finally {
+        setFetching(false);
       }
     }
-    setDraftLoaded(true);
-  }, []);
 
-  // Auto-save (only after draft is loaded to prevent overwriting on mount)
-  useEffect(() => {
-    if (!draftLoaded) return; // Don't auto-save until we've checked for existing draft
-
-    if (name || description) {
-      const draft = { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, images, coverImageId };
-      localStorage.setItem('project-draft', JSON.stringify(draft));
-    }
-  }, [name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, images, coverImageId, draftLoaded]);
+    fetchProject();
+  }, [projectId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,35 +65,48 @@ export default function NewProject() {
 
     const imageIds = images.map(img => img.id);
 
-    const res = await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        description,
-        stack,
-        status,
-        learnings,
-        githubUrl,
-        demoUrl,
-        demoVideoUrl,
-        imageIds,
-        coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
-      }),
-    });
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          description,
+          stack,
+          status,
+          learnings,
+          githubUrl,
+          demoUrl,
+          demoVideoUrl,
+          imageIds,
+          coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
+        }),
+      });
 
-    if (res.ok) {
-      localStorage.removeItem('project-draft'); // Clear draft on successful save
-      router.push('/admin');
-    } else {
-      alert('Error creating project');
+      if (res.ok) {
+        router.push('/admin');
+      } else {
+        alert('Error updating project');
+      }
+    } catch (error) {
+      console.error('Error updating project:', error);
+      alert('Error updating project');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  if (fetching) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', textAlign: 'center' }}>
+        <p>Loading project...</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Log a Project</h1>
+      <h1 style={{ marginBottom: '2rem' }}>Edit Project</h1>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Name</label>
@@ -207,14 +206,29 @@ export default function NewProject() {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <button
+                type="button"
+                onClick={() => router.push('/admin')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+            >
+                Cancel
+            </button>
             <button
                 type="submit"
                 disabled={loading}
                 className="primary"
                 style={{ opacity: loading ? 0.7 : 1 }}
             >
-                {loading ? 'Saving...' : 'Save Project'}
+                {loading ? 'Updating...' : 'Update Project'}
             </button>
         </div>
       </form>

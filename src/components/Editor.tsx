@@ -106,6 +106,13 @@ export default function Editor({ value, onChange }: EditorProps) {
     immediatelyRender: false,
   });
 
+  // Update editor content when value prop changes (e.g., when restoring draft)
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
 
   if (!isMounted) return <div style={{ minHeight: '300px', background: '#f8f9fa' }} />;
 

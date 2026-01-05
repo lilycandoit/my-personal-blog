@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { PenLine, FileText, LayoutGrid, Plus } from 'lucide-react';
+import { PenLine, FileText, LayoutGrid, Plus, Edit } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   const [postCount, projectCount, recentPosts] = await Promise.all([
@@ -100,20 +102,48 @@ export default async function AdminDashboard() {
                 <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>TITLE</th>
                 <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>CATEGORY</th>
                 <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>DATE</th>
+                <th style={{ padding: '1rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
-                {recentPosts.map(post => (
-                <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>
-                    <td style={{ padding: '1.25rem 1.5rem', fontWeight: 500 }}>
-                      <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>{post.title}</Link>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                        <span className="tag">{post.category}</span>
-                    </td>
-                    <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>{post.createdAt.toLocaleDateString()}</td>
-                </tr>
-                ))}
+                {recentPosts.map(post => {
+                  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  }).format(new Date(post.createdAt));
+
+                  return (
+                    <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>
+                      <td style={{ padding: '1.25rem 1.5rem', fontWeight: 500 }}>
+                        <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>{post.title}</Link>
+                      </td>
+                      <td style={{ padding: '1.25rem 1.5rem' }}>
+                          <span className="tag">{post.category}</span>
+                      </td>
+                      <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>{formattedDate}</td>
+                      <td style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
+                        <Link
+                          href={`/admin/posts/${post.id}/edit`}
+                          style={{
+                            border: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '6px',
+                            background: 'rgba(93, 156, 236, 0.1)',
+                            color: 'var(--color-primary)',
+                            fontSize: '0.85rem',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <Edit size={14} /> Edit
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
             </tbody>
             </table>
         )}

@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
 
@@ -13,55 +13,41 @@ interface UploadedImage {
   height?: number;
 }
 
-export default function NewPost() {
+export default function EditPost() {
+  const params = useParams();
+  const postId = params.id as string;
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [draftLoaded, setDraftLoaded] = useState(false);
-  const hasPromptedRef = useRef(false);
+  const [fetching, setFetching] = useState(true);
   const router = useRouter();
 
-  // Restore draft on mount (only once)
+  // Fetch existing post data
   useEffect(() => {
-    // Prevent double prompt in React.StrictMode
-    if (hasPromptedRef.current) return;
-    hasPromptedRef.current = true;
-
-    const savedDraft = localStorage.getItem('post-draft');
-    if (savedDraft) {
+    async function fetchPost() {
       try {
-        const draft = JSON.parse(savedDraft);
-        // Only ask if there's actual content
-        if (draft.title || draft.content) {
-          if (confirm('Restore unsaved draft?')) {
-            setTitle(draft.title || '');
-            setCategory(draft.category || 'Learning');
-            setContent(draft.content || '');
-            setImages(draft.images || []);
-            setCoverImageId(draft.coverImageId || '');
-          } else {
-            localStorage.removeItem('post-draft');
-          }
-        }
+        const res = await fetch(`/api/posts/${postId}`);
+        if (!res.ok) throw new Error('Failed to fetch post');
+
+        const post = await res.json();
+        setTitle(post.title);
+        setCategory(post.category);
+        setContent(post.content);
+        setImages(post.images || []);
+        setCoverImageId(post.coverImageId || '');
       } catch (error) {
-        console.error('Error loading draft:', error);
+        console.error('Error fetching post:', error);
+        alert('Error loading post');
+      } finally {
+        setFetching(false);
       }
     }
-    setDraftLoaded(true);
-  }, []);
 
-  // Auto-save (only after draft is loaded to prevent overwriting on mount)
-  useEffect(() => {
-    if (!draftLoaded) return; // Don't auto-save until we've checked for existing draft
-
-    if (title || content) {
-      const draft = { title, category, content, images, coverImageId };
-      localStorage.setItem('post-draft', JSON.stringify(draft));
-    }
-  }, [title, category, content, images, coverImageId, draftLoaded]);
+    fetchPost();
+  }, [postId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,30 +55,43 @@ export default function NewPost() {
 
     const imageIds = images.map(img => img.id);
 
-    const res = await fetch('/api/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title,
-        category,
-        content,
-        imageIds,
-        coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
-      }),
-    });
+    try {
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          category,
+          content,
+          imageIds,
+          coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
+        }),
+      });
 
-    if (res.ok) {
-      localStorage.removeItem('post-draft'); // Clear draft on successful publish
-      router.push('/admin');
-    } else {
-      alert('Error creating post');
+      if (res.ok) {
+        router.push('/admin');
+      } else {
+        alert('Error updating post');
+      }
+    } catch (error) {
+      console.error('Error updating post:', error);
+      alert('Error updating post');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
+  if (fetching) {
+    return (
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem', textAlign: 'center' }}>
+        <p>Loading post...</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Write a new thought</h1>
+      <h1 style={{ marginBottom: '2rem' }}>Edit Post</h1>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Title</label>
@@ -146,14 +145,29 @@ export default function NewPost() {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+            <button
+                type="button"
+                onClick={() => router.push('/admin')}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#f1f5f9',
+                  color: '#64748b',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+            >
+                Cancel
+            </button>
             <button
                 type="submit"
                 disabled={loading}
                 className="primary"
                 style={{ opacity: loading ? 0.7 : 1 }}
             >
-                {loading ? 'Publishing...' : 'Publish'}
+                {loading ? 'Updating...' : 'Update Post'}
             </button>
         </div>
       </form>
