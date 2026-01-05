@@ -87,7 +87,10 @@ export default function Editor({ value, onChange }: EditorProps) {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Disable link from StarterKit to avoid duplicate
+        link: false,
+      }),
       Typography,
       Link.configure({ openOnClick: false }),
       Image,

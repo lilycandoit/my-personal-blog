@@ -107,11 +107,19 @@ export default async function AdminDashboard() {
             </thead>
             <tbody>
                 {recentPosts.map(post => {
+                  // Check if post was updated after creation
+                  const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
+                  const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
+
+                  // Format with date, time, and timezone
                   const formattedDate = new Intl.DateTimeFormat('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
-                    year: 'numeric'
-                  }).format(new Date(post.createdAt));
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    timeZoneName: 'short'
+                  }).format(dateToShow);
 
                   return (
                     <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>
@@ -121,7 +129,16 @@ export default async function AdminDashboard() {
                       <td style={{ padding: '1.25rem 1.5rem' }}>
                           <span className="tag">{post.category}</span>
                       </td>
-                      <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>{formattedDate}</td>
+                      <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <span>{formattedDate}</span>
+                          {wasEdited && (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>
+                              (Updated)
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
                         <Link
                           href={`/admin/posts/${post.id}/edit`}

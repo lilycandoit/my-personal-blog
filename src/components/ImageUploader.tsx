@@ -70,14 +70,26 @@ export default function ImageUploader({
       return;
     }
 
-    // Validate file types
-    const validFiles = files.filter(file => {
-      const isValid = file.type.startsWith('image/');
-      if (!isValid) {
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+    // Validate file types and sizes
+    const validFiles: File[] = [];
+    for (const file of files) {
+      // Check file type
+      if (!file.type.startsWith('image/')) {
         setError(`${file.name} is not a valid image file`);
+        continue;
       }
-      return isValid;
-    });
+
+      // Check file size with preview
+      if (file.size > MAX_FILE_SIZE) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        setError(`${file.name} is too large (${fileSizeMB}MB). Maximum size is 10MB.`);
+        continue;
+      }
+
+      validFiles.push(file);
+    }
 
     if (validFiles.length === 0) return;
 
@@ -170,7 +182,7 @@ export default function ImageUploader({
           {uploading ? 'Uploading...' : 'Drop images here or click to browse'}
         </p>
         <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem' }}>
-          PNG, JPG, WebP, GIF up to 5MB (max {maxImages} images)
+          PNG, JPG, WebP, GIF up to 10MB (max {maxImages} images)
         </p>
       </div>
 
@@ -249,7 +261,7 @@ export default function ImageUploader({
                 <X size={16} />
               </button>
 
-              {/* Filename tooltip */}
+              {/* Filename and size tooltip */}
               <div
                 style={{
                   position: 'absolute',
@@ -266,6 +278,9 @@ export default function ImageUploader({
                 }}
               >
                 {image.filename}
+                <div style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '0.125rem' }}>
+                  {(image.size / (1024 * 1024)).toFixed(2)} MB
+                </div>
               </div>
             </div>
           ))}

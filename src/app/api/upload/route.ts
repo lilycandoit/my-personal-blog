@@ -6,10 +6,19 @@ import { prisma } from '@/lib/prisma';
 
 // Allowed image types
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Blob token is configured
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN is not configured');
+      return NextResponse.json(
+        { error: 'Server configuration error: BLOB_READ_WRITE_TOKEN not set' },
+        { status: 500 }
+      );
+    }
+
     // Check authentication
     const session = await getServerSession();
     if (!session) {
@@ -41,7 +50,7 @@ export async function POST(request: NextRequest) {
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: 'File too large. Maximum size is 5MB.' },
+        { error: 'File too large. Maximum size is 10MB.' },
         { status: 400 }
       );
     }
@@ -67,10 +76,19 @@ export async function POST(request: NextRequest) {
     const filename = `${timestamp}-${sanitizedFilename}`;
 
     // Upload to Vercel Blob
-    const blob = await put(filename, buffer, {
-      access: 'public',
-      contentType: file.type,
-    });
+    let blob;
+    try {
+      blob = await put(filename, buffer, {
+        access: 'public',
+        contentType: file.type,
+      });
+    } catch (blobError) {
+      console.error('Vercel Blob upload error:', blobError);
+      return NextResponse.json(
+        { error: `Blob upload failed: ${blobError instanceof Error ? blobError.message : 'Unknown error'}` },
+        { status: 500 }
+      );
+    }
 
     // Save to database
     const image = await prisma.image.create({
@@ -98,8 +116,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: `Failed to upload file: ${errorMessage}` },
       { status: 500 }
     );
   }
