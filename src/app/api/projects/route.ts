@@ -10,7 +10,7 @@ const projectSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
   stack: z.string().min(1, "Stack is required"),
-  status: z.enum(['learning', 'completed', 'experimenting']),
+  status: z.enum(['in-progress', 'completed']),
   learnings: z.string().optional().default(''),
   githubUrl: z.string().url().optional().or(z.literal('')),
   demoUrl: z.string().url().optional().or(z.literal('')),

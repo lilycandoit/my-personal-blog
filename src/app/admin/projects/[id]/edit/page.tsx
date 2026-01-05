@@ -141,10 +141,8 @@ export default function EditProject() {
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                 >
-                    <option value="learning">Learning</option>
-                    <option value="experimenting">Experimenting</option>
+                    <option value="in-progress">In Progress</option>
                     <option value="completed">Completed</option>
-                    <option value="paused">Paused</option>
                 </select>
             </div>
         </div>

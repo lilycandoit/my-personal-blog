@@ -17,7 +17,7 @@ export default function NewProject() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [stack, setStack] = useState('');
-  const [status, setStatus] = useState('learning');
+  const [status, setStatus] = useState('in-progress');
   const [learnings, setLearnings] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [demoUrl, setDemoUrl] = useState('');
@@ -45,7 +45,7 @@ export default function NewProject() {
             setName(draft.name || '');
             setDescription(draft.description || '');
             setStack(draft.stack || '');
-            setStatus(draft.status || 'learning');
+            setStatus(draft.status || 'in-progress');
             setLearnings(draft.learnings || '');
             setGithubUrl(draft.githubUrl || '');
             setDemoUrl(draft.demoUrl || '');
@@ -142,10 +142,8 @@ export default function NewProject() {
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
                 >
-                    <option value="learning">Learning</option>
-                    <option value="experimenting">Experimenting</option>
+                    <option value="in-progress">In Progress</option>
                     <option value="completed">Completed</option>
-                    <option value="paused">Paused</option>
                 </select>
             </div>
         </div>

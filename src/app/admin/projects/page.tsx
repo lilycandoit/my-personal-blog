@@ -103,7 +103,8 @@ export default function AdminProjectsPage() {
                     <td style={{ padding: '1.25rem 1.5rem' }}>
                       <span className="tag" style={{
                         backgroundColor: project.status === 'completed' ? '#dcfce7' : 'rgba(93, 156, 236, 0.1)',
-                        color: project.status === 'completed' ? '#166534' : 'var(--color-primary)'
+                        color: project.status === 'completed' ? '#166534' : 'var(--color-primary)',
+                        textTransform: 'capitalize'
                       }}>
                         {project.status}
                       </span>
