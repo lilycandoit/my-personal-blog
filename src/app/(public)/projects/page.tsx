@@ -15,6 +15,7 @@ interface Project {
   demoUrl: string | null;
   coverImageId: string | null;
   createdAt: string;
+  builtDate: string | null;
   images: {
     id: string;
     url: string;
@@ -114,11 +115,11 @@ export default function ProjectsPage() {
         }}>
           {projects.map((project) => {
             const coverImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];
-            const createdDate = new Date(project.createdAt);
+            const displayDate = new Date(project.builtDate || project.createdAt);
             const monthYear = new Intl.DateTimeFormat('en-US', {
               month: 'short',
               year: 'numeric'
-            }).format(createdDate);
+            }).format(displayDate);
 
             return (
               <div key={project.slug} style={{
@@ -140,7 +141,7 @@ export default function ProjectsPage() {
                       height={coverImage.height || 300}
                       style={{
                         width: viewMode === 'grid' ? '100%' : '200px',
-                        height: viewMode === 'grid' ? 'auto' : '200px',
+                        height: viewMode === 'grid' ? '200px' : '200px',
                         objectFit: 'cover',
                       }}
                       sizes={viewMode === 'grid' ? '300px' : '200px'}

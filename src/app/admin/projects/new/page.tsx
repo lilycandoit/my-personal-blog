@@ -22,6 +22,7 @@ export default function NewProject() {
   const [githubUrl, setGithubUrl] = useState('');
   const [demoUrl, setDemoUrl] = useState('');
   const [demoVideoUrl, setDemoVideoUrl] = useState('');
+  const [builtDate, setBuiltDate] = useState('');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ export default function NewProject() {
             setGithubUrl(draft.githubUrl || '');
             setDemoUrl(draft.demoUrl || '');
             setDemoVideoUrl(draft.demoVideoUrl || '');
+            setBuiltDate(draft.builtDate || '');
             setImages(draft.images || []);
             setCoverImageId(draft.coverImageId || '');
           } else {
@@ -68,10 +70,10 @@ export default function NewProject() {
     if (!draftLoaded) return; // Don't auto-save until we've checked for existing draft
 
     if (name || description) {
-      const draft = { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, images, coverImageId };
+      const draft = { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, images, coverImageId };
       localStorage.setItem('project-draft', JSON.stringify(draft));
     }
-  }, [name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, images, coverImageId, draftLoaded]);
+  }, [name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, images, coverImageId, draftLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,6 +93,7 @@ export default function NewProject() {
         githubUrl,
         demoUrl,
         demoVideoUrl,
+        builtDate,
         imageIds,
         coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
       }),
@@ -179,6 +182,18 @@ export default function NewProject() {
           />
           <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
             For longer demos, paste a YouTube/Vimeo link
+          </p>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Built Date (Optional)</label>
+          <input
+            type="month"
+            value={builtDate}
+            onChange={e => setBuiltDate(e.target.value)}
+          />
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+            When was this project actually built? (e.g., Jan 2024)
           </p>
         </div>
 

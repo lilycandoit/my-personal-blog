@@ -19,11 +19,12 @@ export default function EditProject() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [stack, setStack] = useState('');
-  const [status, setStatus] = useState('learning');
+  const [status, setStatus] = useState('in-progress');
   const [learnings, setLearnings] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [demoUrl, setDemoUrl] = useState('');
   const [demoVideoUrl, setDemoVideoUrl] = useState('');
+  const [builtDate, setBuiltDate] = useState('');
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,7 @@ export default function EditProject() {
         setGithubUrl(project.githubUrl || '');
         setDemoUrl(project.demoUrl || '');
         setDemoVideoUrl(project.demoVideoUrl || '');
+        setBuiltDate(project.builtDate ? project.builtDate.substring(0, 7) : '');
         setImages(project.images || []);
         setCoverImageId(project.coverImageId || '');
       } catch (error) {
@@ -78,6 +80,7 @@ export default function EditProject() {
           githubUrl,
           demoUrl,
           demoVideoUrl,
+          builtDate,
           imageIds,
           coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
         }),
@@ -178,6 +181,18 @@ export default function EditProject() {
           />
           <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
             For longer demos, paste a YouTube/Vimeo link
+          </p>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Built Date (Optional)</label>
+          <input
+            type="month"
+            value={builtDate}
+            onChange={e => setBuiltDate(e.target.value)}
+          />
+          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+            When was this project actually built? (e.g., Jan 2024)
           </p>
         </div>
 

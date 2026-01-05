@@ -7,11 +7,12 @@ const projectUpdateSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
   description: z.string().min(1, "Description is required").optional(),
   stack: z.string().min(1, "Stack is required").optional(),
-  status: z.enum(['learning', 'completed', 'experimenting', 'paused']).optional(),
+  status: z.enum(['in-progress', 'completed']).optional(),
   learnings: z.string().optional(),
   githubUrl: z.string().url().optional().or(z.literal('')),
   demoUrl: z.string().url().optional().or(z.literal('')),
   demoVideoUrl: z.string().url().optional().or(z.literal('')),
+  builtDate: z.string().optional(),
   imageIds: z.array(z.string()).optional(),
   coverImageId: z.string().nullable().optional(),
 });
@@ -63,7 +64,7 @@ export async function PUT(
     const body = await request.json();
     const validatedData = projectUpdateSchema.parse(body);
 
-    const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, imageIds, coverImageId } = validatedData;
+    const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
 
     // First, disconnect all existing images
     await prisma.project.update({
@@ -87,6 +88,7 @@ export async function PUT(
         githubUrl: githubUrl || null,
         demoUrl: demoUrl || null,
         demoVideoUrl: demoVideoUrl || null,
+        builtDate: builtDate ? new Date(builtDate) : null,
         coverImageId: coverImageId || null,
         images: {
           connect: imageIds?.map(imageId => ({ id: imageId })) || [],

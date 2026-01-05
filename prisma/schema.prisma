@@ -33,11 +33,12 @@ model Project {
   name         String
   description  String   // Rich text
   stack        String
-  status       String   // learning, completed, experimenting
+  status       String   // in-progress, completed
   learnings    String
   githubUrl    String?
   demoUrl      String?
   demoVideoUrl String?  // YouTube/Vimeo link
+  builtDate    DateTime? // When project was actually built
   coverImageId String?
   images       Image[]
   createdAt    DateTime @default(now())

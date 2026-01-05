@@ -15,6 +15,7 @@ const projectSchema = z.object({
   githubUrl: z.string().url().optional().or(z.literal('')),
   demoUrl: z.string().url().optional().or(z.literal('')),
   demoVideoUrl: z.string().url().optional().or(z.literal('')),
+  builtDate: z.string().optional(),
   imageIds: z.array(z.string()).optional().default([]),
   coverImageId: z.string().nullable().optional(),
 });
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = projectSchema.parse(body);
 
-    const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, imageIds, coverImageId } = validatedData;
+    const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
 
     const project = await prisma.project.create({
       data: {
@@ -55,6 +56,7 @@ export async function POST(req: Request) {
         githubUrl: githubUrl || null,
         demoUrl: demoUrl || null,
         demoVideoUrl: demoVideoUrl || null,
+        builtDate: builtDate ? new Date(builtDate) : null,
         coverImageId: coverImageId || null,
         slug: slugify(name),
         images: {
