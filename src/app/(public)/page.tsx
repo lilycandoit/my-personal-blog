@@ -4,8 +4,9 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const recentPost = await prisma.post.findFirst({
+  const recentPosts = await prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
+    take: 3,
   });
 
   return (
@@ -27,27 +28,44 @@ export default async function Home() {
         </Link>
       </div>
 
-      {recentPost && (
+      {recentPosts.length > 0 && (
         <section>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', margin: 0, color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-ui)' }}>LATEST POST</h2>
+            <h2 style={{ fontSize: '1.25rem', margin: 0, color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-ui)' }}>LATEST POSTS</h2>
             <Link href="/posts" style={{ fontSize: '1.25rem', color: 'var(--color-primary)', border: 'none' }}>View all &rarr;</Link>
           </div>
 
-          <div className="post-item">
-            <Link href={`/posts/${recentPost.slug}`} style={{ border: 'none' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.8rem' }}>{recentPost.title}</h3>
-              <div className="meta" style={{ marginBottom: '1rem' }}>
-                <span className="date">{recentPost.createdAt.toLocaleDateString()}</span>
-                <span>•</span>
-                <span className="tag">{recentPost.category}</span>
-              </div>
-              <div style={{ fontSize: '1.2rem', lineHeight: '1.6', color: 'var(--color-text)' }}>
-                 {/* Creating a plain text excerpt from HTML is tricky without a library, using a simple slice here.
-                     Ideally we strip HTML tags. */}
-                 <div dangerouslySetInnerHTML={{ __html: recentPost.content.slice(0, 200) + '...' }} />
-              </div>
-            </Link>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+            {recentPosts.map((post) => {
+              // Format date with time and timezone (same as admin panel)
+              const formattedDate = new Intl.DateTimeFormat('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short'
+              }).format(new Date(post.createdAt));
+
+              return (
+                <div key={post.id} className="post-item" style={{
+                  paddingBottom: '2.5rem',
+                  borderBottom: '1px solid var(--color-border)',
+                }}>
+                  <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>
+                    <h3 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.8rem' }}>{post.title}</h3>
+                    <div className="meta" style={{ marginBottom: '1rem' }}>
+                      <span className="date">{formattedDate}</span>
+                      <span>•</span>
+                      <span className="tag">{post.category}</span>
+                    </div>
+                    <div style={{ fontSize: '1.2rem', lineHeight: '1.6', color: 'var(--color-text)' }}>
+                       <div dangerouslySetInnerHTML={{ __html: post.content.slice(0, 200) + '...' }} />
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         </section>
       )}
