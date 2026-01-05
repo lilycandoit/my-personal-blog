@@ -29,6 +29,20 @@ export default async function ProjectsPage() {
           projects.map((project) => {
             const coverImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];
 
+            // Check if project was updated after creation
+            const wasEdited = new Date(project.updatedAt).getTime() !== new Date(project.createdAt).getTime();
+            const dateToShow = wasEdited ? new Date(project.updatedAt) : new Date(project.createdAt);
+
+            // Format date with time and timezone
+            const formattedDate = new Intl.DateTimeFormat('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZoneName: 'short'
+            }).format(dateToShow);
+
             return (
               <div key={project.slug} style={{
                 display: 'grid',
@@ -75,6 +89,10 @@ export default async function ProjectsPage() {
                     }}>
                       {project.status}
                     </span>
+                  </div>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--color-muted)', marginBottom: '1rem', fontFamily: 'var(--font-ui)' }}>
+                    {formattedDate}
+                    {wasEdited && <span style={{ marginLeft: '0.5rem', color: 'var(--color-primary)' }}>(Updated)</span>}
                   </div>
                   <div style={{ fontSize: '1.1rem', marginBottom: '1.5rem', lineHeight: '1.5' }} dangerouslySetInnerHTML={{ __html: project.description }} />
                   <div style={{ fontSize: '0.95rem', fontFamily: 'var(--font-ui)' }}>

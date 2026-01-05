@@ -63,24 +63,28 @@ export default async function AdminDashboard() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ padding: '0.75rem', background: 'rgba(93, 156, 236, 0.1)', borderRadius: '10px', color: 'var(--color-primary)' }}>
-            <FileText size={20} />
+        <Link href="/admin/posts" style={{ textDecoration: 'none', border: 'none' }}>
+          <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+            <div style={{ padding: '0.75rem', background: 'rgba(93, 156, 236, 0.1)', borderRadius: '10px', color: 'var(--color-primary)' }}>
+              <FileText size={20} />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Total Posts</h3>
+              <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{postCount}</p>
+            </div>
           </div>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Total Posts</h3>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{postCount}</p>
+        </Link>
+        <Link href="/admin/projects" style={{ textDecoration: 'none', border: 'none' }}>
+          <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
+            <div style={{ padding: '0.75rem', background: 'rgba(160, 210, 235, 0.1)', borderRadius: '10px', color: 'var(--color-secondary)' }}>
+              <LayoutGrid size={20} />
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Active Projects</h3>
+              <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{projectCount}</p>
+            </div>
           </div>
-        </div>
-        <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ padding: '0.75rem', background: 'rgba(160, 210, 235, 0.1)', borderRadius: '10px', color: 'var(--color-secondary)' }}>
-            <LayoutGrid size={20} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Active Projects</h3>
-            <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{projectCount}</p>
-          </div>
-        </div>
+        </Link>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1rem' }}>
