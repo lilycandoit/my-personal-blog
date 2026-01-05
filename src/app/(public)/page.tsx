@@ -37,6 +37,10 @@ export default async function Home() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
             {recentPosts.map((post) => {
+              // Check if post was updated after creation
+              const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
+              const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
+
               // Format date with time and timezone (same as admin panel)
               const formattedDate = new Intl.DateTimeFormat('en-GB', {
                 day: '2-digit',
@@ -45,7 +49,7 @@ export default async function Home() {
                 hour: '2-digit',
                 minute: '2-digit',
                 timeZoneName: 'short'
-              }).format(new Date(post.createdAt));
+              }).format(dateToShow);
 
               return (
                 <div key={post.id} className="post-item" style={{
@@ -55,7 +59,10 @@ export default async function Home() {
                   <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>
                     <h3 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.8rem' }}>{post.title}</h3>
                     <div className="meta" style={{ marginBottom: '1rem' }}>
-                      <span className="date">{formattedDate}</span>
+                      <span className="date">
+                        {formattedDate}
+                        {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
+                      </span>
                       <span>•</span>
                       <span className="tag">{post.category}</span>
                     </div>

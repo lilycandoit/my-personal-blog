@@ -25,6 +25,20 @@ export default async function PostsPage() {
           posts.map((post) => {
             const coverImage = post.images?.find(img => img.id === post.coverImageId) || post.images?.[0];
 
+            // Check if post was updated after creation
+            const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
+            const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
+
+            // Format date with time and timezone
+            const formattedDate = new Intl.DateTimeFormat('en-GB', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZoneName: 'short'
+            }).format(dateToShow);
+
             return (
               <div key={post.id} style={{
                 display: 'grid',
@@ -62,7 +76,10 @@ export default async function PostsPage() {
                     </h2>
                   </Link>
                   <div className="meta">
-                    <span className="date">{post.createdAt.toLocaleDateString()}</span>
+                    <span className="date">
+                      {formattedDate}
+                      {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
+                    </span>
                     <span style={{ color: 'var(--color-border)' }}>|</span>
                     <span className="tag" style={{ backgroundColor: 'rgba(93, 156, 236, 0.1)' }}>{post.category}</span>
                   </div>

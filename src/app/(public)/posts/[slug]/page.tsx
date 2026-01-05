@@ -25,12 +25,29 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
     notFound();
   }
 
+  // Check if post was updated after creation
+  const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
+  const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
+
+  // Format date with time and timezone
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  }).format(dateToShow);
+
   return (
     <article style={{ maxWidth: '100%' }}>
         <header style={{ marginBottom: '3rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '2rem' }}>
             <h1 style={{ marginBottom: '1rem', fontSize: '2.5rem', lineHeight: 1.2 }}>{post.title}</h1>
             <div className="meta" style={{ fontSize: '1rem' }}>
-                <span className="date">{post.createdAt.toLocaleDateString()}</span>
+                <span className="date">
+                  {formattedDate}
+                  {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
+                </span>
                 <span>—</span>
                 <span className="tag">{post.category}</span>
             </div>
