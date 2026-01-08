@@ -34,7 +34,7 @@ export default function AboutPage() {
 
       <ul>
         <li>Thoughts on life, growth, simplicity, and vulnerability.</li>
-        <li>Notes from my coding journey.</li>
+        <li>Notes from my coding journey & English learning journey.</li>
         <li>Small moments that matter to me.</li>
       </ul>
 

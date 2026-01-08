@@ -19,6 +19,7 @@ export default function EditPost() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
   const [content, setContent] = useState('');
+  const [featured, setFeatured] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,7 @@ export default function EditPost() {
         setTitle(post.title);
         setCategory(post.category);
         setContent(post.content);
+        setFeatured(post.featured || false);
         setImages(post.images || []);
         setCoverImageId(post.coverImageId || '');
       } catch (error) {
@@ -63,6 +65,7 @@ export default function EditPost() {
           title,
           category,
           content,
+          featured,
           imageIds,
           coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
         }),
@@ -115,6 +118,23 @@ export default function EditPost() {
                 <option value="Life">Life</option>
                 <option value="Moments">Moments</option>
             </select>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+                type="checkbox"
+                id="featured"
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  cursor: 'pointer',
+                }}
+            />
+            <label htmlFor="featured" style={{ fontWeight: 500, cursor: 'pointer', marginBottom: 0 }}>
+              Featured (show on homepage)
+            </label>
         </div>
 
         <div>

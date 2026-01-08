@@ -1,0 +1,17 @@
+export const reminders = [
+  "Progress, not perfection. Every step counts! 🌱",
+  "Take a break. Your mental health matters. 💙",
+  "Celebrate small wins today! 🎉",
+  "You're doing better than you think. 💪",
+  "Remember to drink water and stretch! 💧",
+  "It's okay to ask for help. 🤝",
+  "Your journey is unique. Don't compare. 🌟",
+  "Rest is productive too. 😴",
+  "You've overcome 100% of your bad days. 🌈",
+  "Be kind to yourself today. ❤️",
+  "Your best is enough. 🙌",
+  "Growth happens outside comfort zones. 🚀",
+  "Focus on progress, not perfection. 📈",
+  "You are capable of amazing things. ✨",
+  "Take it one step at a time. 👣",
+];

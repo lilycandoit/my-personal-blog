@@ -7,10 +7,10 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="container">
+    <>
       <Navbar />
-      <main style={{ flex: 1, width: '100%' }}>{children}</main>
+      <main style={{ minHeight: '100vh', margin: 0, padding: 0 }}>{children}</main>
       <Footer />
-    </div>
+    </>
   );
 }

@@ -17,6 +17,7 @@ export default function NewPost() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
   const [content, setContent] = useState('');
+  const [featured, setFeatured] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,7 @@ export default function NewPost() {
             setTitle(draft.title || '');
             setCategory(draft.category || 'Learning');
             setContent(draft.content || '');
+            setFeatured(draft.featured || false);
             setImages(draft.images || []);
             setCoverImageId(draft.coverImageId || '');
           } else {
@@ -58,10 +60,10 @@ export default function NewPost() {
     if (!draftLoaded) return; // Don't auto-save until we've checked for existing draft
 
     if (title || content) {
-      const draft = { title, category, content, images, coverImageId };
+      const draft = { title, category, content, featured, images, coverImageId };
       localStorage.setItem('post-draft', JSON.stringify(draft));
     }
-  }, [title, category, content, images, coverImageId, draftLoaded]);
+  }, [title, category, content, featured, images, coverImageId, draftLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +78,7 @@ export default function NewPost() {
         title,
         category,
         content,
+        featured,
         imageIds,
         coverImageId: coverImageId || (imageIds.length > 0 ? imageIds[0] : null),
       }),
@@ -116,6 +119,23 @@ export default function NewPost() {
                 <option value="Life">Life</option>
                 <option value="Moments">Moments</option>
             </select>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+                type="checkbox"
+                id="featured"
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  cursor: 'pointer',
+                }}
+            />
+            <label htmlFor="featured" style={{ fontWeight: 500, cursor: 'pointer', marginBottom: 0 }}>
+              Featured (show on homepage)
+            </label>
         </div>
 
         <div>

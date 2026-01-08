@@ -7,6 +7,7 @@ const postUpdateSchema = z.object({
   title: z.string().min(1, "Title is required").optional(),
   content: z.string().min(1, "Content is required").optional(),
   category: z.enum(['Learning', 'Life', 'Moments']).optional(),
+  featured: z.boolean().optional(),
   imageIds: z.array(z.string()).optional(),
   coverImageId: z.string().nullable().optional(),
 });
@@ -58,7 +59,7 @@ export async function PUT(
     const body = await request.json();
     const validatedData = postUpdateSchema.parse(body);
 
-    const { title, content, category, imageIds, coverImageId } = validatedData;
+    const { title, content, category, featured, imageIds, coverImageId } = validatedData;
 
     // First, disconnect all existing images
     await prisma.post.update({
@@ -77,6 +78,7 @@ export async function PUT(
         ...(title && { title }),
         ...(content && { content }),
         ...(category && { category }),
+        ...(featured !== undefined && { featured }),
         coverImageId: coverImageId || null,
         images: {
           connect: imageIds?.map(imageId => ({ id: imageId })) || [],

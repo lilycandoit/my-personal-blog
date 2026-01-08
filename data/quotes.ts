@@ -1,0 +1,17 @@
+export const quotes = [
+  "The only way to do great work is to love what you do. - Steve Jobs",
+  "Code is like humor. When you have to explain it, it's bad. - Cory House",
+  "First, solve the problem. Then, write the code. - John Johnson",
+  "Experience is the name everyone gives to their mistakes. - Oscar Wilde",
+  "In order to be irreplaceable, one must always be different. - Coco Chanel",
+  "Learning never exhausts the mind. - Leonardo da Vinci",
+  "The best time to plant a tree was 20 years ago. The second best time is now. - Chinese Proverb",
+  "Simplicity is the soul of efficiency. - Austin Freeman",
+  "Make it work, make it right, make it fast. - Kent Beck",
+  "The journey of a thousand miles begins with one step. - Lao Tzu",
+  "Progress, not perfection. - Unknown",
+  "Every expert was once a beginner. - Unknown",
+  "The only impossible journey is the one you never begin. - Tony Robbins",
+  "Life is what happens when you're busy making other plans. - John Lennon",
+  "Don't watch the clock; do what it does. Keep going. - Sam Levenson",
+];

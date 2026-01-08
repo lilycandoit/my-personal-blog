@@ -21,6 +21,7 @@ model Post {
   title        String
   content      String   // Rich text HTML/JSON
   category     String   // Learning, Life, Moments
+  featured     Boolean  @default(false)
   coverImageId String?
   images       Image[]
   createdAt    DateTime @default(now())
