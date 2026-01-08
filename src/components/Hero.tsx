@@ -37,11 +37,11 @@ export default function Hero({ heroImage = '/hero/hero-bg.jpg' }: HeroProps) {
           fontWeight: 700,
           textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)',
         }}>
-          Hi! This is Lily
+          Hi! This is Duong
         </h1>
 
         <p style={{
-          fontSize: '1.5rem',
+          fontSize: '1.2rem',
           marginBottom: '1rem',
           fontFamily: 'var(--font-ui)',
           fontWeight: 500,
@@ -51,7 +51,7 @@ export default function Hero({ heroImage = '/hero/hero-bg.jpg' }: HeroProps) {
         </p>
 
         <p style={{
-          fontSize: '1.2rem',
+          fontSize: '1.4rem',
           marginBottom: '2rem',
           fontFamily: 'var(--font-ui)',
           lineHeight: '1.6',

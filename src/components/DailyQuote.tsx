@@ -15,7 +15,11 @@ function getDayHash(dateString: string): number {
   return Math.abs(hash);
 }
 
-export default function DailyQuote() {
+interface DailyQuoteProps {
+  variant?: 'home' | 'posts';
+}
+
+export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -23,10 +27,24 @@ export default function DailyQuote() {
   }, []);
 
   const today = new Date().toISOString().split('T')[0];
-  const dayHash = getDayHash(today);
+  // Use different salt for posts page to get different quote
+  const salt = variant === 'posts' ? 'posts-quote' : '';
+  const dayHash = getDayHash(today + salt);
   const dailyQuote = quotes.length > 0
     ? quotes[dayHash % quotes.length]
     : "Every day is a new beginning.";
+
+  // Detect if it's a joke (has ? or ! or doesn't have " - ")
+  const isJoke = dailyQuote.includes('?') ||
+                 dailyQuote.includes('!') ||
+                 !dailyQuote.includes(' - ');
+
+  // Format the quote text with quotation marks around quote only (not author)
+  let formattedQuote = dailyQuote;
+  if (!isJoke && dailyQuote.includes(' - ')) {
+    const [quoteText, author] = dailyQuote.split(' - ');
+    formattedQuote = `"${quoteText}" - ${author}`;
+  }
 
   if (!mounted) return null;
 
@@ -40,7 +58,7 @@ export default function DailyQuote() {
       transition: 'transform 0.3s ease',
     }}
     className="daily-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', justifyContent: 'center' }}>
         <div style={{
           width: '50px',
           height: '50px',
@@ -63,7 +81,7 @@ export default function DailyQuote() {
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         }}>
-          Quote of the Day
+          What quote for today?
         </h3>
       </div>
 
@@ -72,9 +90,10 @@ export default function DailyQuote() {
         fontSize: '1.1rem',
         lineHeight: '1.6',
         color: 'var(--color-text)',
-        fontStyle: 'italic',
+        fontStyle: isJoke ? 'normal' : 'italic',
+        textAlign: 'center',
       }}>
-        {dailyQuote}
+        {formattedQuote}
       </blockquote>
     </div>
   );

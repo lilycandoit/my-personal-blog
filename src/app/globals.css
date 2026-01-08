@@ -511,6 +511,25 @@ button.primary:hover {
   }
 }
 
+/* Posts Grid Responsive */
+@media (max-width: 1400px) {
+  .posts-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .posts-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .posts-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2.5rem;
