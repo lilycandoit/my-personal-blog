@@ -1,224 +1,183 @@
-'use client';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { LayoutGrid, List } from 'lucide-react';
+import { prisma } from '@/lib/prisma';
+import DailyQuote from '@/components/DailyQuote';
 
-interface Project {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  stack: string;
-  status: string;
-  githubUrl: string | null;
-  demoUrl: string | null;
-  coverImageId: string | null;
-  createdAt: string;
-  builtDate: string | null;
-  images: {
-    id: string;
-    url: string;
-    alt: string | null;
-    filename: string;
-    width: number | null;
-    height: number | null;
-  }[];
+export const dynamic = 'force-dynamic';
+
+export const metadata = {
+  title: 'Projects',
+  description: 'Things I\'ve built to understand how things work.',
+};
+
+// Helper function to strip HTML tags and get plain text excerpt
+function getExcerpt(htmlContent: string, maxLength: number = 150): string {
+  const text = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (text.length <= maxLength) return text;
+
+  const truncated = text.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
 }
 
-export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const savedView = localStorage.getItem('projectsViewMode') as 'grid' | 'list';
-    if (savedView) setViewMode(savedView);
-
-    async function fetchProjects() {
-      try {
-        const res = await fetch('/api/projects');
-        const data = await res.json();
-        setProjects(data);
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProjects();
-  }, []);
-
-  const toggleView = (mode: 'grid' | 'list') => {
-    setViewMode(mode);
-    localStorage.setItem('projectsViewMode', mode);
-  };
-
-  const getShortDescription = (html: string) => {
-    const text = html.replace(/<[^>]*>/g, '');
-    return text.length > 150 ? text.substring(0, 150) + '...' : text;
-  };
-
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: '3rem' }}>Loading...</div>;
-  }
+export default async function ProjectsPage() {
+  const projects = await prisma.project.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      images: true,
+    },
+  });
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ margin: 0 }}>Projects</h1>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            onClick={() => toggleView('grid')}
-            style={{
-              padding: '0.5rem',
-              border: '1px solid var(--color-border)',
-              borderRadius: '6px',
-              background: viewMode === 'grid' ? 'var(--color-primary)' : 'white',
-              color: viewMode === 'grid' ? 'white' : 'var(--color-text)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <LayoutGrid size={18} />
-          </button>
-          <button
-            onClick={() => toggleView('list')}
-            style={{
-              padding: '0.5rem',
-              border: '1px solid var(--color-border)',
-              borderRadius: '6px',
-              background: viewMode === 'list' ? 'var(--color-primary)' : 'white',
-              color: viewMode === 'list' ? 'white' : 'var(--color-text)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <List size={18} />
-          </button>
-        </div>
+    <div style={{
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '0 2rem',
+    }}>
+      {/* Quote Section */}
+      <div style={{ margin: '3rem 0' }}>
+        <DailyQuote variant="projects" />
       </div>
 
-      <p style={{ marginBottom: '3rem', fontSize: '1.3rem', color: 'var(--color-muted)', maxWidth: '100%' }}>
-        This is a learning log, not a showcase. Here are the things I've built to understand how things work.
-      </p>
-
-      {projects.length === 0 ? (
-        <p>No projects yet.</p>
-      ) : (
+      {/* Projects Grid */}
+      {projects.length > 0 ? (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : '1fr',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '2rem',
-        }}>
+          marginTop: '2rem',
+        }}
+        className="projects-grid">
           {projects.map((project) => {
             const coverImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];
+            const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
+            const imageAlt = coverImage?.alt || project.name;
+            const excerpt = getExcerpt(project.description);
+
             const displayDate = new Date(project.builtDate || project.createdAt);
-            const monthYear = new Intl.DateTimeFormat('en-US', {
+            const formattedDate = new Intl.DateTimeFormat('en-US', {
               month: 'short',
               year: 'numeric'
             }).format(displayDate);
 
             return (
-              <div key={project.slug} style={{
-                border: '1px solid var(--color-border)',
-                borderRadius: '12px',
-                background: '#fff',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: viewMode === 'grid' ? 'column' : 'row',
-                gap: viewMode === 'list' ? '1.5rem' : '0',
-              }}>
-                {/* Thumbnail */}
-                {coverImage && (
-                  <Link href={`/projects/${project.slug}`} style={{ border: 'none', display: 'block', flexShrink: 0 }}>
+              <Link
+                key={project.id}
+                href={`/projects/${project.slug}`}
+                style={{
+                  border: 'none',
+                  textDecoration: 'none',
+                  display: 'block',
+                }}
+              >
+                <article style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  background: '#fff',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                }}
+                className="project-card">
+                  {/* Cover Image */}
+                  <div style={{
+                    width: '100%',
+                    height: '220px',
+                    overflow: 'hidden',
+                    backgroundColor: '#f5f5f5',
+                  }}>
                     <Image
-                      src={coverImage.url}
-                      alt={coverImage.alt || project.name}
-                      width={coverImage.width || 400}
-                      height={coverImage.height || 300}
+                      src={imageUrl}
+                      alt={imageAlt}
+                      width={coverImage?.width || 800}
+                      height={coverImage?.height || 600}
                       style={{
-                        width: viewMode === 'grid' ? '100%' : '200px',
-                        height: viewMode === 'grid' ? '200px' : '200px',
+                        width: '100%',
+                        height: '100%',
                         objectFit: 'cover',
                       }}
-                      sizes={viewMode === 'grid' ? '300px' : '200px'}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                  </Link>
-                )}
-
-                {/* Content */}
-                <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                  <Link href={`/projects/${project.slug}`} style={{ border: 'none' }}>
-                    <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--color-primary)' }}>{project.name}</h2>
-                  </Link>
-
-                  {/* Tech Stack */}
-                  <div style={{ fontSize: '0.9rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
-                    {project.stack.split(',').map((tech, i) => (
-                      <span key={i}>
-                        {tech.trim()}
-                        {i < project.stack.split(',').length - 1 && ' · '}
-                      </span>
-                    ))}
                   </div>
 
-                  {/* Short Description */}
-                  <p style={{ fontSize: '1rem', lineHeight: '1.6', margin: 0, color: 'var(--color-text)' }}>
-                    {getShortDescription(project.description)}
-                  </p>
-
-                  {/* Links */}
-                  <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.9rem', fontFamily: 'var(--font-ui)' }}>
-                    {project.githubUrl && (
-                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" style={{
-                        padding: '0.4rem 0.8rem',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '6px',
-                        color: 'var(--color-text)',
-                        textDecoration: 'none',
-                      }}>
-                        GitHub
-                      </a>
-                    )}
-                    {project.demoUrl && (
-                      <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" style={{
-                        padding: '0.4rem 0.8rem',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '6px',
-                        color: 'var(--color-text)',
-                        textDecoration: 'none',
-                      }}>
-                        Live
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Status & Date */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                    <span style={{
-                      fontSize: '0.85rem',
-                      padding: '4px 10px',
-                      borderRadius: '20px',
-                      background: project.status === 'completed' ? '#dcfce7' : '#f1f5f9',
-                      color: project.status === 'completed' ? '#166534' : '#475569',
-                      fontWeight: 700,
-                      fontFamily: 'var(--font-ui)',
-                      textTransform: 'capitalize',
+                  {/* Project Content */}
+                  <div style={{
+                    padding: '1.5rem',
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem',
+                  }}>
+                    <h2 style={{
+                      marginBottom: '0',
+                      marginTop: 0,
+                      fontSize: '1.4rem',
+                      color: 'var(--color-text)',
+                      lineHeight: '1.4',
                     }}>
-                      {project.status}
-                    </span>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
-                      {monthYear}
-                    </span>
+                      {project.name}
+                    </h2>
+
+                    <div className="meta">
+                      <span className="date" style={{ fontSize: '0.9rem' }}>
+                        {formattedDate}
+                      </span>
+                      <span style={{ color: 'var(--color-border)', margin: '0 0.5rem' }}>|</span>
+                      <span style={{
+                        fontSize: '0.85rem',
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '12px',
+                        background: project.status === 'completed' ? '#dcfce7' : '#f1f5f9',
+                        color: project.status === 'completed' ? '#166534' : '#475569',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-ui)',
+                        textTransform: 'capitalize',
+                      }}>
+                        {project.status}
+                      </span>
+                    </div>
+
+                    {/* Tech Stack */}
+                    <div style={{
+                      fontSize: '0.85rem',
+                      color: 'var(--color-muted)',
+                      fontFamily: 'var(--font-ui)',
+                    }}>
+                      {project.stack}
+                    </div>
+
+                    {/* Excerpt */}
+                    <p style={{
+                      margin: 0,
+                      fontSize: '1rem',
+                      lineHeight: '1.6',
+                      color: 'var(--color-text-secondary)',
+                      flex: 1,
+                    }}>
+                      {excerpt}
+                    </p>
+
+                    {/* View Project */}
+                    <div style={{
+                      fontFamily: 'var(--font-ui)',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      color: 'var(--color-primary)',
+                      letterSpacing: '0.05em',
+                    }}>
+                      View Project →
+                    </div>
                   </div>
-                </div>
-              </div>
+                </article>
+              </Link>
             );
           })}
         </div>
+      ) : (
+        <p>No projects yet.</p>
       )}
     </div>
   );

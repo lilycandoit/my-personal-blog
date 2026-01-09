@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
+import { sanitizeText } from '@/lib/sanitize';
 
 const postUpdateSchema = z.object({
   title: z.string().min(1, "Title is required").optional(),
@@ -62,6 +63,10 @@ export async function PUT(
 
     const { title, content, category, visibility, featured, imageIds, coverImageId } = validatedData;
 
+    // Sanitize text fields to replace curly quotes and special characters
+    const sanitizedTitle = title ? sanitizeText(title) : undefined;
+    const sanitizedContent = content ? sanitizeText(content) : undefined;
+
     // First, disconnect all existing images
     await prisma.post.update({
       where: { id },
@@ -76,8 +81,8 @@ export async function PUT(
     const post = await prisma.post.update({
       where: { id },
       data: {
-        ...(title && { title }),
-        ...(content && { content }),
+        ...(sanitizedTitle && { title: sanitizedTitle }),
+        ...(sanitizedContent && { content: sanitizedContent }),
         ...(category && { category }),
         ...(visibility && { visibility }),
         ...(featured !== undefined && { featured }),

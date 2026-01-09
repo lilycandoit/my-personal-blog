@@ -530,6 +530,43 @@ button.primary:hover {
   }
 }
 
+/* Projects Grid Responsive */
+@media (max-width: 1400px) {
+  .projects-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Project Card Animations */
+.project-card {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.project-card:nth-child(1) { animation-delay: 0.1s; }
+.project-card:nth-child(2) { animation-delay: 0.2s; }
+.project-card:nth-child(3) { animation-delay: 0.3s; }
+
+.project-card:hover h2 {
+  color: var(--color-primary);
+}
+
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2.5rem;

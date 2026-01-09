@@ -16,7 +16,7 @@ function getDayHash(dateString: string): number {
 }
 
 interface DailyQuoteProps {
-  variant?: 'home' | 'posts';
+  variant?: 'home' | 'posts' | 'projects';
 }
 
 export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
@@ -27,8 +27,8 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
   }, []);
 
   const today = new Date().toISOString().split('T')[0];
-  // Use different salt for posts page to get different quote
-  const salt = variant === 'posts' ? 'posts-quote' : '';
+  // Use different salt for each page to get different quote
+  const salt = variant === 'posts' ? 'posts-quote' : variant === 'projects' ? 'projects-quote' : '';
   const dayHash = getDayHash(today + salt);
   const dailyQuote = quotes.length > 0
     ? quotes[dayHash % quotes.length]

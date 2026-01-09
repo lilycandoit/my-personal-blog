@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
+import { sanitizeText } from '@/lib/sanitize';
 
 const projectUpdateSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
@@ -66,6 +67,12 @@ export async function PUT(
 
     const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
 
+    // Sanitize text fields to replace curly quotes and special characters
+    const sanitizedName = name ? sanitizeText(name) : undefined;
+    const sanitizedDescription = description ? sanitizeText(description) : undefined;
+    const sanitizedStack = stack ? sanitizeText(stack) : undefined;
+    const sanitizedLearnings = learnings ? sanitizeText(learnings) : '';
+
     // First, disconnect all existing images
     await prisma.project.update({
       where: { id },
@@ -80,11 +87,11 @@ export async function PUT(
     const project = await prisma.project.update({
       where: { id },
       data: {
-        ...(name && { name }),
-        ...(description && { description }),
-        ...(stack && { stack }),
+        ...(sanitizedName && { name: sanitizedName }),
+        ...(sanitizedDescription && { description: sanitizedDescription }),
+        ...(sanitizedStack && { stack: sanitizedStack }),
         ...(status && { status }),
-        learnings: learnings || '',
+        learnings: sanitizedLearnings,
         githubUrl: githubUrl || null,
         demoUrl: demoUrl || null,
         demoVideoUrl: demoVideoUrl || null,

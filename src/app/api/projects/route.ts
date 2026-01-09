@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { slugify } from '@/lib/utils';
+import { sanitizeText } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,19 +47,25 @@ export async function POST(req: Request) {
 
     const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
 
+    // Sanitize text fields to replace curly quotes and special characters
+    const sanitizedName = sanitizeText(name);
+    const sanitizedDescription = sanitizeText(description);
+    const sanitizedStack = sanitizeText(stack);
+    const sanitizedLearnings = learnings ? sanitizeText(learnings) : '';
+
     const project = await prisma.project.create({
       data: {
-        name,
-        description,
-        stack,
+        name: sanitizedName,
+        description: sanitizedDescription,
+        stack: sanitizedStack,
         status,
-        learnings,
+        learnings: sanitizedLearnings,
         githubUrl: githubUrl || null,
         demoUrl: demoUrl || null,
         demoVideoUrl: demoVideoUrl || null,
         builtDate: builtDate ? new Date(builtDate) : null,
         coverImageId: coverImageId || null,
-        slug: slugify(name),
+        slug: slugify(sanitizedName),
         images: {
           connect: imageIds?.map(id => ({ id })) || [],
         },
