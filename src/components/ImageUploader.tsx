@@ -96,24 +96,50 @@ export default function ImageUploader({
     setUploading(true);
 
     try {
-      // Upload files one by one
+      // Upload files one by one directly to Cloudinary
       const uploadedImages: UploadedImage[] = [];
 
       for (const file of validFiles) {
+        // Upload directly to Cloudinary
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'blog_unsigned');
 
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        const cloudinaryResponse = await fetch(
+          `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Upload failed');
+        if (!cloudinaryResponse.ok) {
+          throw new Error('Failed to upload to Cloudinary');
         }
 
-        const data = await response.json();
+        const cloudinaryData = await cloudinaryResponse.json();
+
+        // Save to our database
+        const dbResponse = await fetch('/api/images/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: cloudinaryData.secure_url,
+            filename: file.name,
+            size: file.size,
+            mimeType: file.type,
+            width: cloudinaryData.width,
+            height: cloudinaryData.height,
+            publicId: cloudinaryData.public_id,
+          }),
+        });
+
+        if (!dbResponse.ok) {
+          const errorData = await dbResponse.json();
+          throw new Error(errorData.error || 'Failed to save image');
+        }
+
+        const data = await dbResponse.json();
         uploadedImages.push(data.image);
       }
 
