@@ -116,6 +116,7 @@ export default async function Home() {
                           width: '100%',
                           height: '300px',
                           objectFit: 'cover',
+                          objectPosition: 'center bottom'
                         }}
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />

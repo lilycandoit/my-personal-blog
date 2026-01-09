@@ -34,7 +34,7 @@ export default function KindReminder() {
     <div style={{
       padding: '2rem',
       borderRadius: '16px',
-      backgroundColor: '#ffe8f7',
+      backgroundColor: '#faf2f7',
       border: '1px solid #ffd0ed',
       boxShadow: '0 2px 12px rgba(236, 93, 156, 0.1)',
       transition: 'transform 0.3s ease',
@@ -45,7 +45,7 @@ export default function KindReminder() {
           width: '50px',
           height: '50px',
           borderRadius: '50%',
-          backgroundColor: '#e91e8c',
+          backgroundColor: '#eb78b6',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
