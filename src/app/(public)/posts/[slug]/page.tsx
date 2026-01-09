@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,62 +45,76 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
     timeZoneName: 'short'
   }).format(dateToShow);
 
+  const coverImage = post.images?.find(img => img.id === post.coverImageId) || post.images?.[0];
+  const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
+  const imageAlt = coverImage?.alt || post.title;
+
   return (
-    <article style={{ maxWidth: '100%' }}>
-        <header style={{ marginBottom: '3rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '2rem' }}>
-            <h1 style={{ marginBottom: '1rem', fontSize: '2.5rem', lineHeight: 1.2 }}>{post.title}</h1>
-            <div className="meta" style={{ fontSize: '1rem' }}>
-                <span className="date">
-                  {formattedDate}
-                  {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
-                </span>
-                <span>—</span>
-                <span className="tag">{post.category}</span>
-            </div>
+    <article style={{ margin: '2rem', padding: 0}}>
+      {/* Main Content Container */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        padding: '0 2rem 4rem',
+      }}>
+        {/* Header with Title First, Then Meta */}
+        <header style={{ marginBottom: '2rem' }}>
+          <h1 style={{
+            margin: '0',
+            fontSize: '2.5rem',
+            lineHeight: 1.2,
+            fontWeight: 700,
+          }}>
+            {post.title}
+          </h1>
+          <div className="meta" style={{ fontSize: '1rem' }}>
+            <span className="date">
+              {formattedDate}
+              {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
+            </span>
+            <span style={{ margin: '0 0.5rem', color: 'var(--color-border)' }}>|</span>
+            <span className="tag">{post.category}</span>
+          </div>
         </header>
 
-        {/* Cover Image */}
-        {post.images && post.images.length > 0 && post.coverImageId && (
-          <div style={{ marginBottom: '2rem' }}>
-            {(() => {
-              const coverImage = post.images.find(img => img.id === post.coverImageId);
-              if (coverImage) {
-                return (
-                  <Image
-                    src={coverImage.url}
-                    alt={coverImage.alt || post.title}
-                    width={coverImage.width || 800}
-                    height={coverImage.height || 600}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      borderRadius: '12px',
-                    }}
-                    sizes="(max-width: 768px) 100vw, 800px"
-                    priority
-                  />
-                );
-              }
-              return null;
-            })()}
-          </div>
-        )}
+        {/* Cover Image - Full Width (always show) */}
+        <div style={{ marginBottom: '2rem' }}>
+          <Image
+            src={imageUrl}
+            alt={imageAlt}
+            width={coverImage?.width || 1200}
+            height={coverImage?.height || 600}
+            style={{
+              width: '100%',
+              height: 'auto',
+              maxHeight: '500px',
+              objectFit: 'cover',
+              objectPosition: 'bottom center',
+              borderRadius: '16px',
+            }}
+            sizes="(max-width: 768px) 100vw, 900px"
+          />
+        </div>
+
 
         {/* Render HTML content from Editor */}
         <div
-            className="content prose prose-lg max-w-none"
-            style={{ fontSize: '1.2rem', fontFamily: 'var(--font-body)' }}
-            dangerouslySetInnerHTML={{ __html: post.content }}
+          className="content prose prose-lg max-w-none"
+          style={{
+            fontSize: '1.2rem',
+            fontFamily: 'var(--font-body)',
+            lineHeight: '1.8',
+          }}
+          dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
-        {/* Additional Images */}
+        {/* Additional Images Gallery */}
         {post.images && post.images.filter(img => img.id !== post.coverImageId).length > 0 && (
           <div style={{ marginTop: '3rem' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Gallery</h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1rem',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1.5rem',
             }}>
               {post.images
                 .filter(img => img.id !== post.coverImageId)
@@ -113,8 +128,8 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                     style={{
                       width: '100%',
                       height: 'auto',
-                      borderRadius: '8px',
-                      border: '1px solid var(--color-border)',
+                      borderRadius: '12px',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                     }}
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
@@ -123,9 +138,27 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           </div>
         )}
 
-        <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--color-border)' }}>
-             <a href="/posts" style={{ fontSize: '1.1rem', color: 'var(--color-muted)', border: 'none' }}>&larr; Back to all posts</a>
+        {/* Footer */}
+        <div style={{
+          borderTop: '1px solid var(--color-border)',
+          boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.03)',
+          paddingTop: '2rem',
+          marginTop: '4rem',
+        }}>
+          <Link
+            href="/posts"
+            style={{
+              color: 'var(--color-muted)',
+              border: 'none',
+              textDecoration: 'none',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.95rem',
+            }}
+          >
+            ← Back to Posts
+          </Link>
         </div>
+      </div>
     </article>
   );
 }
