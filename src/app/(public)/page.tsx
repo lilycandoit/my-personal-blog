@@ -22,6 +22,7 @@ export default async function Home() {
   const latestPostIds = latestPosts.map(p => p.id);
 
   // Fetch featured posts (only public, exclude latest posts to avoid duplication)
+  // Get more than we need in case some are filtered out
   const featuredPosts = await prisma.post.findMany({
     where: {
       featured: true,
@@ -29,11 +30,11 @@ export default async function Home() {
       id: { notIn: latestPostIds }
     },
     orderBy: { createdAt: 'desc' },
-    take: 3,
+    take: 6, // Get 6, will show 3 after filtering
     include: {
       images: true,
     },
-  });
+  }).then(posts => posts.slice(0, 3)); // Take only first 3
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -95,6 +96,7 @@ export default async function Home() {
 
             {latestBig && (() => {
               const { dateToShow, coverImage } = getPostMeta(latestBig);
+              const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
               return (
                 <Link href={`/posts/${latestBig.slug}`} style={{ border: 'none', textDecoration: 'none', display: 'block', marginBottom: '2rem' }}>
                   <div style={{
@@ -106,21 +108,19 @@ export default async function Home() {
                     transition: 'all 0.3s ease',
                   }}
                   className="featured-post-card">
-                    {coverImage && (
-                      <Image
-                        src={coverImage.url}
-                        alt={coverImage.alt || latestBig.title}
-                        width={800}
-                        height={400}
-                        style={{
-                          width: '100%',
-                          height: '300px',
-                          objectFit: 'cover',
-                          objectPosition: 'center bottom'
-                        }}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    )}
+                    <Image
+                      src={imageUrl}
+                      alt={coverImage?.alt || latestBig.title}
+                      width={800}
+                      height={400}
+                      style={{
+                        width: '100%',
+                        height: '300px',
+                        objectFit: 'cover',
+                        objectPosition: 'center bottom'
+                      }}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
                     <div style={{ padding: '2rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                         <span style={{
@@ -178,6 +178,7 @@ export default async function Home() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {latestCompact.map((post) => {
                 const { dateToShow, coverImage } = getPostMeta(post);
+                const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link key={post.id} href={`/posts/${post.slug}`} style={{ border: 'none', textDecoration: 'none' }}>
                     <div style={{
@@ -190,22 +191,20 @@ export default async function Home() {
                       transition: 'all 0.2s ease',
                     }}
                     className="compact-post-card">
-                      {coverImage && (
-                        <Image
-                          src={coverImage.url}
-                          alt={coverImage.alt || post.title}
-                          width={150}
-                          height={150}
-                          style={{
-                            width: '150px',
-                            height: '150px',
-                            objectFit: 'cover',
-                            borderRadius: '8px',
-                            flexShrink: 0,
-                          }}
-                          sizes="150px"
-                        />
-                      )}
+                      <Image
+                        src={imageUrl}
+                        alt={coverImage?.alt || post.title}
+                        width={150}
+                        height={150}
+                        style={{
+                          width: '150px',
+                          height: '150px',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          flexShrink: 0,
+                        }}
+                        sizes="150px"
+                      />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{
@@ -272,6 +271,7 @@ export default async function Home() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               {featuredPosts.map((post) => {
                 const { dateToShow, coverImage } = getPostMeta(post);
+                const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link key={post.id} href={`/posts/${post.slug}`} style={{ border: 'none', textDecoration: 'none' }}>
                     <div style={{
@@ -282,20 +282,18 @@ export default async function Home() {
                       transition: 'all 0.3s ease',
                     }}
                     className="featured-sidebar-card">
-                      {coverImage && (
-                        <Image
-                          src={coverImage.url}
-                          alt={coverImage.alt || post.title}
-                          width={400}
-                          height={250}
-                          style={{
-                            width: '100%',
-                            height: '200px',
-                            objectFit: 'cover',
-                          }}
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                      )}
+                      <Image
+                        src={imageUrl}
+                        alt={coverImage?.alt || post.title}
+                        width={400}
+                        height={250}
+                        style={{
+                          width: '100%',
+                          height: '200px',
+                          objectFit: 'cover',
+                        }}
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
                       <div style={{ padding: '1.5rem' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
                           <span style={{
