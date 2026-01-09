@@ -18,6 +18,7 @@ export default function EditPost() {
   const postId = params.id as string;
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
+  const [visibility, setVisibility] = useState('public');
   const [content, setContent] = useState('');
   const [featured, setFeatured] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -36,6 +37,7 @@ export default function EditPost() {
         const post = await res.json();
         setTitle(post.title);
         setCategory(post.category);
+        setVisibility(post.visibility || 'public');
         setContent(post.content);
         setFeatured(post.featured || false);
         setImages(post.images || []);
@@ -64,6 +66,7 @@ export default function EditPost() {
         body: JSON.stringify({
           title,
           category,
+          visibility,
           content,
           featured,
           imageIds,
@@ -117,6 +120,18 @@ export default function EditPost() {
                 <option value="Learning">Learning</option>
                 <option value="Life">Life</option>
                 <option value="Moments">Moments</option>
+            </select>
+        </div>
+
+        <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Visibility</label>
+            <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value)}
+            >
+                <option value="public">Public (visible to everyone)</option>
+                <option value="unlisted">Unlisted (accessible via link only)</option>
+                <option value="draft">Draft (only visible in admin)</option>
             </select>
         </div>
 

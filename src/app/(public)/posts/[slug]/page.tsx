@@ -25,6 +25,11 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
     notFound();
   }
 
+  // Block draft posts from public access
+  if (post.visibility === 'draft') {
+    notFound();
+  }
+
   // Check if post was updated after creation
   const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
   const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);

@@ -16,6 +16,7 @@ interface UploadedImage {
 export default function NewPost() {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Learning');
+  const [visibility, setVisibility] = useState('public');
   const [content, setContent] = useState('');
   const [featured, setFeatured] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
@@ -40,6 +41,7 @@ export default function NewPost() {
           if (confirm('Restore unsaved draft?')) {
             setTitle(draft.title || '');
             setCategory(draft.category || 'Learning');
+            setVisibility(draft.visibility || 'public');
             setContent(draft.content || '');
             setFeatured(draft.featured || false);
             setImages(draft.images || []);
@@ -60,10 +62,10 @@ export default function NewPost() {
     if (!draftLoaded) return; // Don't auto-save until we've checked for existing draft
 
     if (title || content) {
-      const draft = { title, category, content, featured, images, coverImageId };
+      const draft = { title, category, visibility, content, featured, images, coverImageId };
       localStorage.setItem('post-draft', JSON.stringify(draft));
     }
-  }, [title, category, content, featured, images, coverImageId, draftLoaded]);
+  }, [title, category, visibility, content, featured, images, coverImageId, draftLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +79,7 @@ export default function NewPost() {
       body: JSON.stringify({
         title,
         category,
+        visibility,
         content,
         featured,
         imageIds,
@@ -118,6 +121,18 @@ export default function NewPost() {
                 <option value="Learning">Learning</option>
                 <option value="Life">Life</option>
                 <option value="Moments">Moments</option>
+            </select>
+        </div>
+
+        <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Visibility</label>
+            <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value)}
+            >
+                <option value="public">Public (visible to everyone)</option>
+                <option value="unlisted">Unlisted (accessible via link only)</option>
+                <option value="draft">Draft (only visible in admin)</option>
             </select>
         </div>
 

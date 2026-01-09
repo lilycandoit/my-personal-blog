@@ -10,6 +10,7 @@ const postSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   category: z.enum(['Learning', 'Life', 'Moments']),
+  visibility: z.enum(['public', 'unlisted', 'draft']).optional().default('public'),
   featured: z.boolean().optional().default(false),
   slug: z.string().optional(),
   imageIds: z.array(z.string()).optional().default([]),
@@ -40,13 +41,14 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validatedData = postSchema.parse(body);
 
-    const { title, content, category, featured, slug, imageIds, coverImageId } = validatedData;
+    const { title, content, category, visibility, featured, slug, imageIds, coverImageId } = validatedData;
 
     const post = await prisma.post.create({
       data: {
         title,
         content,
         category,
+        visibility,
         featured,
         slug: slug || slugify(title),
         coverImageId: coverImageId || null,

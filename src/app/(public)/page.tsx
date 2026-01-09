@@ -8,20 +8,28 @@ import KindReminder from '@/components/KindReminder';
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // Fetch featured posts
-  const featuredPosts = await prisma.post.findMany({
-    where: { featured: true },
-    orderBy: { createdAt: 'desc' },
-    take: 3,
+  // Fetch latest posts (only public)
+  const latestPosts = await prisma.post.findMany({
+    where: { visibility: 'public' },
+    orderBy: { updatedAt: 'desc' },
+    take: 4, // Get 4 for new layout (1 big + 3 compact)
     include: {
       images: true,
     },
   });
 
-  // Fetch latest posts
-  const latestPosts = await prisma.post.findMany({
-    orderBy: { updatedAt: 'desc' },
-    take: 4, // Get 4 for new layout (1 big + 3 compact)
+  // Get IDs of latest posts to exclude from featured section
+  const latestPostIds = latestPosts.map(p => p.id);
+
+  // Fetch featured posts (only public, exclude latest posts to avoid duplication)
+  const featuredPosts = await prisma.post.findMany({
+    where: {
+      featured: true,
+      visibility: 'public',
+      id: { notIn: latestPostIds }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 3,
     include: {
       images: true,
     },
@@ -113,7 +121,7 @@ export default async function Home() {
                       />
                     )}
                     <div style={{ padding: '2rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                         <span style={{
                           padding: '0.25rem 0.75rem',
                           borderRadius: '6px',
@@ -125,6 +133,21 @@ export default async function Home() {
                         }}>
                           {latestBig.category}
                         </span>
+                        {latestBig.featured && (
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '6px',
+                            backgroundColor: '#fff3cd',
+                            color: '#856404',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-ui)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                          }}>
+                            ⭐ Featured
+                          </span>
+                        )}
                         <span style={{ fontSize: '0.9rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
                           {formatDate(dateToShow)}
                         </span>
@@ -183,7 +206,7 @@ export default async function Home() {
                         />
                       )}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{
                             padding: '0.2rem 0.6rem',
                             borderRadius: '4px',
@@ -195,6 +218,21 @@ export default async function Home() {
                           }}>
                             {post.category}
                           </span>
+                          {post.featured && (
+                            <span style={{
+                              padding: '0.2rem 0.6rem',
+                              borderRadius: '4px',
+                              backgroundColor: '#fff3cd',
+                              color: '#856404',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              fontFamily: 'var(--font-ui)',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                            }}>
+                              ⭐ Featured
+                            </span>
+                          )}
                           <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
                             {formatDate(dateToShow)}
                           </span>

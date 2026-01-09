@@ -10,6 +10,7 @@ function stripHtml(html: string) {
 export async function GET() {
   const [posts, projects] = await Promise.all([
     prisma.post.findMany({
+      where: { visibility: 'public' },
       select: { slug: true, title: true, content: true, category: true }
     }),
     prisma.project.findMany({
