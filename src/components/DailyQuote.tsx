@@ -58,7 +58,7 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
       transition: 'transform 0.3s ease',
     }}
     className="daily-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
         <div style={{
           width: '50px',
           height: '50px',
@@ -91,7 +91,6 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
         lineHeight: '1.6',
         color: 'var(--color-text)',
         fontStyle: isJoke ? 'normal' : 'italic',
-        textAlign: 'center',
       }}>
         {formattedQuote}
       </blockquote>

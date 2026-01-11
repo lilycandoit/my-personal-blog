@@ -105,7 +105,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           top: 0,
           right: 0,
           bottom: 0,
-          width: '66.666vw',
+          width: '33.333vw',
           backgroundColor: 'white',
           boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.15)',
           zIndex: 9999,
@@ -119,12 +119,12 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '1.5rem',
+          padding: '1rem',
           borderBottom: '1px solid var(--color-border)',
         }}>
           <h2 style={{
             margin: 0,
-            fontSize: '1.2rem',
+            fontSize: '1rem',
             fontFamily: 'var(--font-ui)',
             fontWeight: 700,
             color: 'var(--color-text)',
@@ -137,7 +137,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             style={{
               background: 'none',
               border: 'none',
-              padding: '0.5rem',
+              padding: '0.25rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -148,12 +148,12 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <X size={24} color="var(--color-text)" />
+            <X size={20} color="var(--color-text)" />
           </button>
         </div>
 
         {/* Navigation Links */}
-        <nav style={{ flex: 1, padding: '0.5rem 0', overflowY: 'auto' }}>
+        <nav style={{ flex: 1, padding: '0.25rem 0', overflowY: 'auto' }}>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.path === '/'
@@ -169,9 +169,9 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '0.875rem 1.5rem',
-                  fontSize: '1rem',
+                  gap: '0.5rem',
+                  padding: '0.625rem 1rem',
+                  fontSize: '0.875rem',
                   fontFamily: 'var(--font-ui)',
                   fontWeight: 500,
                   color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
@@ -180,7 +180,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
                   transition: 'background-color 0.2s, color 0.2s',
                 }}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 {item.name}
               </Link>
             );
@@ -190,12 +190,12 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         {/* Theme Toggle Section */}
         <div style={{
           borderTop: '1px solid var(--color-border)',
-          padding: '1.5rem',
+          padding: '1rem',
         }}>
-          <div style={{ marginBottom: '0.75rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-muted)', fontFamily: 'var(--font-ui)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ marginBottom: '0.5rem', fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-muted)', fontFamily: 'var(--font-ui)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Theme
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.375rem' }}>
             {[
               { label: 'Light', icon: Sun, value: 'light' },
               { label: 'Dark', icon: Moon, value: 'dark' },
@@ -209,14 +209,14 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem',
+                  gap: '0.25rem',
+                  padding: '0.5rem 0.25rem',
                   background: 'transparent',
                   border: '1px solid var(--color-border)',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontFamily: 'var(--font-ui)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.65rem',
                   color: 'var(--color-text)',
                   transition: 'all 0.2s',
                 }}
@@ -229,7 +229,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
               >
-                <Icon size={18} />
+                <Icon size={16} />
                 {label}
               </button>
             ))}

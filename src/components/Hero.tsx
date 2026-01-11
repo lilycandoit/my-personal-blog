@@ -10,8 +10,7 @@ export default function Hero({ heroImage = '/hero/hero-bg.jpg' }: HeroProps) {
     <section className="hero-fullwidth" style={{
       position: 'relative',
       width: '100vw',
-      height: '85vh',
-      minHeight: '500px',
+      height: '80vh',
       margin: 0,
       marginLeft: 'calc(-50vw + 50%)',
       marginRight: 'calc(-50vw + 50%)',
@@ -29,16 +28,16 @@ export default function Hero({ heroImage = '/hero/hero-bg.jpg' }: HeroProps) {
         maxWidth: '800px',
         padding: '2rem',
       }}>
-        <h1 style={{
+        <h2 style={{
           fontFamily: 'var(--font-body)',
-          fontSize: '4rem',
+          fontSize: '3rem',
           marginBottom: '1rem',
           color: 'white',
           fontWeight: 700,
           textShadow: '2px 2px 8px rgba(0, 0, 0, 0.5)',
         }}>
           Hi! This is Duong
-        </h1>
+        </h2>
 
         <p style={{
           fontSize: '1.2rem',
