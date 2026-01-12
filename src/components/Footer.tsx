@@ -1,17 +1,10 @@
 export default function Footer() {
   return (
-    <footer style={{
-      borderTop: '1px solid var(--color-border)',
-      background: 'linear-gradient(to bottom, rgba(248, 250, 255, 0.3) 0%, rgba(160, 210, 235, 0.4) 50%, rgba(93, 156, 236, 0.3) 100%)',
-      paddingTop: '3rem',
-      paddingBottom: '2rem',
-      marginTop: 'auto',
-    }}>
-      <p style={{ fontSize: '1.1rem', color: 'var(--color-muted)', textAlign: 'center' }}>
+    <footer className="border-t border-border-light dark:border-border-dark bg-gradient-to-b from-blue-50/30 via-blue-100/40 to-blue-200/30 dark:from-gray-800/30 dark:via-gray-900/40 dark:to-gray-900/30 pt-12 pb-8 mt-auto">
+      <p className="text-lg text-muted-light dark:text-muted-dark text-center font-hand m-0">
         © {new Date().getFullYear()} — specific time, distinct place. <br/>
         <span>Quietly building in the open.</span>
       </p>
     </footer>
-
   );
 }

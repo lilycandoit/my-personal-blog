@@ -23,7 +23,7 @@ export default function KindReminder() {
   }, []);
 
   const today = new Date().toISOString().split('T')[0];
-  const dayHash = getDayHash(today + 'reminder'); // Add salt to get different selection than quote
+  const dayHash = getDayHash(today + 'reminder');
   const dailyReminder = reminders.length > 0
     ? reminders[dayHash % reminders.length]
     : "Take care of yourself today! 💙";
@@ -31,48 +31,17 @@ export default function KindReminder() {
   if (!mounted) return null;
 
   return (
-    <div style={{
-      padding: '2rem',
-      borderRadius: '16px',
-      backgroundColor: '#faf2f7',
-      border: '1px solid #ffd0ed',
-      boxShadow: '0 2px 12px rgba(236, 93, 156, 0.1)',
-      transition: 'transform 0.3s ease',
-    }}
-    className="daily-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          backgroundColor: '#eb78b6',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          flexShrink: 0,
-        }}>
+    <div className="p-8 rounded-2xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 shadow-sm transition-transform hover:-translate-y-1">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-[50px] h-[50px] rounded-full bg-[#eb78b6] flex items-center justify-center text-white flex-shrink-0">
           <Heart size={24} />
         </div>
-        <h3 style={{
-          fontSize: '0.95rem',
-          fontFamily: 'var(--font-ui)',
-          fontWeight: 700,
-          color: '#e91e8c',
-          margin: 0,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}>
+        <h3 className="text-sm font-hand font-bold text-[#e91e8c] dark:text-pink-400 m-0 uppercase tracking-wider">
           Kind Reminder
         </h3>
       </div>
 
-      <p style={{
-        margin: 0,
-        fontSize: '1.1rem',
-        lineHeight: '1.6',
-        color: 'var(--color-text)',
-      }}>
+      <p className="m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand">
         {dailyReminder}
       </p>
     </div>

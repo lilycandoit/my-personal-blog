@@ -27,19 +27,18 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
   }, []);
 
   const today = new Date().toISOString().split('T')[0];
-  // Use different salt for each page to get different quote
   const salt = variant === 'posts' ? 'posts-quote' : variant === 'projects' ? 'projects-quote' : '';
   const dayHash = getDayHash(today + salt);
   const dailyQuote = quotes.length > 0
     ? quotes[dayHash % quotes.length]
     : "Every day is a new beginning.";
 
-  // Detect if it's a joke (has ? or ! or doesn't have " - ")
+  // Detect if it's a joke
   const isJoke = dailyQuote.includes('?') ||
                  dailyQuote.includes('!') ||
                  !dailyQuote.includes(' - ');
 
-  // Format the quote text with quotation marks around quote only (not author)
+  // Format the quote text
   let formattedQuote = dailyQuote;
   if (!isJoke && dailyQuote.includes(' - ')) {
     const [quoteText, author] = dailyQuote.split(' - ');
@@ -49,49 +48,17 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
   if (!mounted) return null;
 
   return (
-    <div style={{
-      padding: '2rem',
-      borderRadius: '16px',
-      backgroundColor: '#e8f4ff',
-      border: '1px solid #d0e7ff',
-      boxShadow: '0 2px 12px rgba(93, 156, 236, 0.1)',
-      transition: 'transform 0.3s ease',
-    }}
-    className="daily-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          backgroundColor: 'var(--color-primary)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          flexShrink: 0,
-        }}>
+    <div className="p-8 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 shadow-sm transition-transform hover:-translate-y-1">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-[50px] h-[50px] rounded-full bg-primary flex items-center justify-center text-white flex-shrink-0">
           <Quote size={24} />
         </div>
-        <h3 style={{
-          fontSize: '0.95rem',
-          fontFamily: 'var(--font-ui)',
-          fontWeight: 700,
-          color: 'var(--color-primary)',
-          margin: 0,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}>
+        <h3 className="text-sm font-hand font-bold text-primary m-0 uppercase tracking-wider">
           What quote for today?
         </h3>
       </div>
 
-      <blockquote style={{
-        margin: 0,
-        fontSize: '1.1rem',
-        lineHeight: '1.6',
-        color: 'var(--color-text)',
-        fontStyle: isJoke ? 'normal' : 'italic',
-      }}>
+      <blockquote className={`m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand ${!isJoke ? 'italic' : ''}`}>
         {formattedQuote}
       </blockquote>
     </div>

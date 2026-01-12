@@ -14,7 +14,6 @@ export const metadata = {
 function getExcerpt(htmlContent: string, maxLength: number = 150): string {
   const text = htmlContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
   if (text.length <= maxLength) return text;
-
   const truncated = text.slice(0, maxLength);
   const lastSpace = truncated.lastIndexOf(' ');
   return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
@@ -29,25 +28,15 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <div style={{
-      maxWidth: '1400px',
-      margin: '0 auto',
-      padding: '0 2rem',
-    }}>
+    <div className="max-w-[1400px] mx-auto px-8">
       {/* Quote Section */}
-      <div style={{ margin: '3rem 0' }}>
+      <div className="my-12">
         <DailyQuote variant="projects" />
       </div>
 
       {/* Projects Grid */}
       {projects.length > 0 ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '2rem',
-          marginTop: '2rem',
-        }}
-        className="projects-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-8">
           {projects.map((project) => {
             const coverImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];
             const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
@@ -64,110 +53,53 @@ export default async function ProjectsPage() {
               <Link
                 key={project.id}
                 href={`/projects/${project.slug}`}
-                style={{
-                  border: 'none',
-                  textDecoration: 'none',
-                  display: 'block',
-                }}
+                className="border-0 no-underline block hover:bg-transparent"
               >
-                <article style={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  background: '#fff',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-                }}
-                className="project-card">
+                <article className="h-full flex flex-col border border-border-light dark:border-border-dark rounded-2xl overflow-hidden bg-surface-light dark:bg-surface-dark transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1">
                   {/* Cover Image */}
-                  <div style={{
-                    width: '100%',
-                    height: '220px',
-                    overflow: 'hidden',
-                    backgroundColor: '#f5f5f5',
-                  }}>
+                  <div className="w-full h-[220px] overflow-hidden bg-gray-100 dark:bg-gray-800">
                     <Image
                       src={imageUrl}
                       alt={imageAlt}
                       width={coverImage?.width || 800}
                       height={coverImage?.height || 600}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
+                      className="w-full h-full object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>
 
                   {/* Project Content */}
-                  <div style={{
-                    padding: '1.5rem',
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                  }}>
-                    <h2 style={{
-                      marginBottom: '0',
-                      marginTop: 0,
-                      fontSize: '1.4rem',
-                      color: 'var(--color-text)',
-                      lineHeight: '1.4',
-                    }}>
+                  <div className="p-6 flex-1 flex flex-col gap-4">
+                    <h2 className="mb-0 mt-0 text-2xl text-gray-800 dark:text-gray-100 leading-snug">
                       {project.name}
                     </h2>
 
-                    <div className="meta">
-                      <span className="date" style={{ fontSize: '0.9rem' }}>
+                    <div className="flex items-center gap-2 text-sm text-muted-light dark:text-muted-dark flex-wrap">
+                      <span>
                         {formattedDate}
                       </span>
-                      <span style={{ color: 'var(--color-border)', margin: '0 0.5rem' }}>|</span>
-                      <span style={{
-                        fontSize: '0.85rem',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '12px',
-                        background: project.status === 'completed' ? '#dcfce7' : '#f1f5f9',
-                        color: project.status === 'completed' ? '#166534' : '#475569',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-ui)',
-                        textTransform: 'capitalize',
-                      }}>
+                      <span className="text-border-light dark:text-border-dark">|</span>
+                      <span className={`text-sm px-3 py-1 rounded-xl font-semibold capitalize ${
+                        project.status === 'completed'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}>
                         {project.status}
                       </span>
                     </div>
 
                     {/* Tech Stack */}
-                    <div style={{
-                      fontSize: '0.85rem',
-                      color: 'var(--color-muted)',
-                      fontFamily: 'var(--font-ui)',
-                    }}>
+                    <div className="text-sm text-muted-light dark:text-muted-dark">
                       {project.stack}
                     </div>
 
                     {/* Excerpt */}
-                    <p style={{
-                      margin: 0,
-                      fontSize: '1rem',
-                      lineHeight: '1.6',
-                      color: 'var(--color-text-secondary)',
-                      flex: 1,
-                    }}>
+                    <p className="m-0 text-base leading-relaxed text-gray-600 dark:text-gray-400 flex-1">
                       {excerpt}
                     </p>
 
                     {/* View Project */}
-                    <div style={{
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: '0.95rem',
-                      fontWeight: 600,
-                      color: 'var(--color-primary)',
-                      letterSpacing: '0.05em',
-                    }}>
+                    <div className="text-base font-semibold text-primary tracking-wide">
                       View Project →
                     </div>
                   </div>
@@ -177,7 +109,7 @@ export default async function ProjectsPage() {
           })}
         </div>
       ) : (
-        <p>No projects yet.</p>
+        <p className="text-center text-gray-600 dark:text-gray-400">No projects yet.</p>
       )}
     </div>
   );

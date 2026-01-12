@@ -26,7 +26,6 @@ export default function Search() {
     }
   }, [isOpen, data.length]);
 
-  // Recreate fuse instance whenever data changes
   const fuse = useMemo(() => new Fuse(data, {
     keys: [
       { name: 'title', weight: 1 },
@@ -61,31 +60,13 @@ export default function Search() {
   };
 
   return (
-    <div style={{ position: 'relative' }} ref={searchRef}>
-      <div className="search-bar" style={{
-        display: 'flex',
-        alignItems: 'center',
-        border: '1px solid var(--color-border)',
-        borderRadius: '12px',
-        padding: '0px 12px',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        backdropFilter: 'blur(8px)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-      }}>
-        <SearchIcon size={18} className="text-[var(--color-muted)]" style={{ marginRight: '8px' }} />
+    <div className="relative" ref={searchRef}>
+      <div className="flex items-center border border-border-light dark:border-border-dark rounded-xl bg-white/80 dark:bg-surface-dark/80 backdrop-blur-sm transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white dark:focus-within:bg-surface-dark">
+        <SearchIcon size={18} className="text-muted-light dark:text-muted-dark ml-2 mr-2" />
         <input
           type="text"
-          placeholder="Search..."
-          className="search-input"
-          style={{
-            width: isOpen || query ? '240px' : '150px',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '0.95rem',
-            fontFamily: 'var(--font-ui)',
-            outline: 'none',
-            transition: 'width 0.3s ease'
-          }}
+          placeholder="Search posts/projects"
+          className="bg-transparent border-none text-sm font-hand outline-none w-[160px] text-gray-800 dark:text-gray-100 placeholder:text-muted-light dark:placeholder:text-muted-dark"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
@@ -93,85 +74,49 @@ export default function Search() {
         {query && (
           <button
             onClick={() => setQuery('')}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginLeft: '8px', display: 'flex' }}
+            className="bg-transparent border-0 p-0 cursor-pointer ml-2 flex hover:opacity-70"
           >
-            <X size={16} className="text-muted" />
+            <X size={16} className="text-muted-light dark:text-muted-dark" />
           </button>
         )}
       </div>
 
       {isOpen && (results.length > 0 || query) && (
-        <div className="search-results scrollbar-hide" style={{
-          position: 'absolute',
-          top: 'calc(100% + 12px)',
-          right: 0,
-          width: '320px',
-          maxHeight: '400px',
-          overflowY: 'auto',
-          backgroundColor: 'white',
-          backdropFilter: 'blur(16px)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '16px',
-          boxShadow: '0 10px 40px -5px rgba(0, 0, 0, 0.2), 0 8px 16px -8px rgba(0, 0, 0, 0.2)',
-          zIndex: 1000
-        }}>
+        <div className="absolute top-[calc(100%+12px)] right-0 w-80 max-h-[400px] overflow-y-auto bg-surface-light dark:bg-surface-dark backdrop-blur-2xl border border-border-light dark:border-border-dark rounded-2xl shadow-2xl z-[1000]">
           {results.length > 0 ? (
             results.map((item, idx) => (
               <Link
                 key={idx}
                 href={item.type === 'post' ? `/posts/${item.slug}` : `/projects/${item.slug}`}
                 onClick={handleSelect}
-                className="search-result-item"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px 16px',
-                  borderBottom: idx === results.length - 1 ? 'none' : '1px solid rgba(0,0,0,0.05)',
-                  transition: 'background 0.2s ease',
-                  textDecoration: 'none'
-                }}
+                className={`flex items-center gap-3 px-4 py-3 transition-colors no-underline border-0 hover:bg-background-light dark:hover:bg-gray-700 ${
+                  idx === results.length - 1 ? '' : 'border-b border-gray-100 dark:border-gray-800'
+                }`}
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  backgroundColor: item.type === 'post' ? 'rgba(93, 156, 236, 0.1)' : 'rgba(160, 210, 235, 0.1)',
-                  color: item.type === 'post' ? 'var(--color-primary)' : 'var(--color-secondary)'
-                }}>
+                <div className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                  item.type === 'post'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-secondary-light/20 dark:bg-secondary-dark/20 text-secondary-light dark:text-secondary-dark'
+                }`}>
                   {item.type === 'post' ? <FileText size={16} /> : <FolderCode size={16} />}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 whitespace-nowrap overflow-hidden text-ellipsis font-hand">
                     {item.title}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                     {item.description}
+                  <div className="text-xs text-muted-light dark:text-muted-dark whitespace-nowrap overflow-hidden text-ellipsis font-hand">
+                    {item.description}
                   </div>
                 </div>
               </Link>
             ))
           ) : query && (
-            <div style={{ padding: '16px', textAlign: 'center', color: 'var(--color-muted)', fontSize: '0.9rem' }}>
+            <div className="p-4 text-center text-muted-light dark:text-muted-dark text-sm font-hand">
               No results found for "{query}"
             </div>
           )}
         </div>
       )}
-      <style jsx>{`
-        .search-bar:focus-within {
-          border-color: var(--color-primary) !important;
-          box-shadow: 0 0 0 4px rgba(93, 156, 236, 0.1);
-          background-color: white !important;
-        }
-        .search-result-item:hover {
-          background-color: #f8faff;
-        }
-      `}</style>
     </div>
   );
 }
-

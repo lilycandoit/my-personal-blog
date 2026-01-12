@@ -22,7 +22,6 @@ export default async function Home() {
   const latestPostIds = latestPosts.map(p => p.id);
 
   // Fetch featured posts (only public, exclude latest posts to avoid duplication)
-  // Get more than we need in case some are filtered out
   const featuredPosts = await prisma.post.findMany({
     where: {
       featured: true,
@@ -30,11 +29,11 @@ export default async function Home() {
       id: { notIn: latestPostIds }
     },
     orderBy: { createdAt: 'desc' },
-    take: 6, // Get 6, will show 3 after filtering
+    take: 6,
     include: {
       images: true,
     },
-  }).then(posts => posts.slice(0, 3)); // Take only first 3
+  }).then(posts => posts.slice(0, 3));
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -54,118 +53,65 @@ export default async function Home() {
   const [latestBig, ...latestCompact] = latestPosts;
 
   return (
-    <div style={{ margin: 0, padding: 0 }}>
+    <div className="m-0 p-0">
       {/* Hero Section */}
       <Hero />
 
       {/* Quote + Reminder Section */}
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '3rem 2rem 0',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          marginBottom: '3rem',
-        }}>
+      <div className="max-w-[1280px] mx-auto px-8 pt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <DailyQuote />
           <KindReminder />
         </div>
       </div>
 
       {/* Main Content: Two Column Layout */}
-      <div style={{
-        maxWidth: '1280px',
-        margin: '0 auto',
-        padding: '0 2rem 4rem',
-      }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1.5fr 1fr',
-          gap: '3rem',
-        }}
-        className="content-grid">
+      <div className="max-w-[1280px] mx-auto px-8 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12">
           {/* LEFT: Latest Posts */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-ui)' }}>LATEST POSTS</h2>
-              <Link href="/posts" style={{ fontSize: '1rem', color: 'var(--color-primary)', border: 'none', fontFamily: 'var(--font-ui)' }}>View all &rarr;</Link>
+            <div className="flex items-baseline justify-between mb-6">
+              <h2 className="text-2xl m-0 text-primary font-bold font-hand">LATEST POSTS</h2>
+              <Link href="/posts" className="text-base text-primary border-0 font-hand hover:bg-transparent">
+                View all &rarr;
+              </Link>
             </div>
 
             {latestBig && (() => {
               const { dateToShow, coverImage } = getPostMeta(latestBig);
               const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
               return (
-                <Link href={`/posts/${latestBig.slug}`} style={{ border: 'none', textDecoration: 'none', display: 'block', marginBottom: '2rem' }}>
-                  <div style={{
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    border: '1px solid var(--color-border)',
-                    backgroundColor: 'var(--color-card-bg)',
-                    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
-                    transition: 'all 0.3s ease',
-                  }}
-                  className="featured-post-card">
+                <Link
+                  href={`/posts/${latestBig.slug}`}
+                  className="border-0 no-underline block mb-8 hover:bg-transparent"
+                >
+                  <div className="rounded-2xl overflow-hidden border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark shadow-md transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                     <Image
                       src={imageUrl}
                       alt={coverImage?.alt || latestBig.title}
                       width={800}
                       height={400}
-                      style={{
-                        width: '100%',
-                        height: '300px',
-                        objectFit: 'cover',
-                        objectPosition: 'center bottom'
-                      }}
+                      className="w-full h-[300px] object-cover object-center-bottom"
                       sizes="(max-width: 768px) 100vw, 50vw"
                     />
-                    <div style={{ padding: '2rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                        <span style={{
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '6px',
-                          backgroundColor: '#eef4fc',
-                          color: 'var(--color-primary)',
-                          fontSize: '0.85rem',
-                          fontWeight: 600,
-                          fontFamily: 'var(--font-ui)',
-                        }}>
+                    <div className="p-8">
+                      <div className="flex items-center gap-3 mb-4 flex-wrap">
+                        <span className="px-3 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-primary text-sm font-semibold font-hand">
                           {latestBig.category}
                         </span>
                         {latestBig.featured && (
-                          <span style={{
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '6px',
-                            backgroundColor: '#fff3cd',
-                            color: '#856404',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            fontFamily: 'var(--font-ui)',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                          }}>
+                          <span className="px-3 py-1 rounded-md bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-bold font-hand uppercase tracking-wide">
                             ⭐ Featured
                           </span>
                         )}
-                        <span style={{ fontSize: '0.9rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
+                        <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                           {formatDate(dateToShow)}
                         </span>
                       </div>
-                      <h3 style={{
-                        margin: '0 0 1rem 0',
-                        fontSize: '1.75rem',
-                        color: 'var(--color-text)',
-                        fontFamily: 'var(--font-ui)',
-                        fontWeight: 700,
-                        lineHeight: 1.3,
-                      }}>{latestBig.title}</h3>
-                      <div style={{
-                        fontSize: '1.05rem',
-                        lineHeight: '1.6',
-                        color: 'var(--color-text-secondary)',
-                      }}>
+                      <h3 className="m-0 mb-4 text-[1.75rem] text-gray-800 dark:text-gray-100 font-hand font-bold leading-tight">
+                        {latestBig.title}
+                      </h3>
+                      <div className="text-[1.05rem] leading-relaxed text-gray-600 dark:text-gray-400 font-hand">
                         <div dangerouslySetInnerHTML={{ __html: latestBig.content.slice(0, 200) + '...' }} />
                       </div>
                     </div>
@@ -175,82 +121,43 @@ export default async function Home() {
             })()}
 
             {/* Compact Latest Posts */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="flex flex-col gap-6">
               {latestCompact.map((post) => {
                 const { dateToShow, coverImage } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
-                  <Link key={post.id} href={`/posts/${post.slug}`} style={{ border: 'none', textDecoration: 'none' }}>
-                    <div style={{
-                      display: 'flex',
-                      gap: '1.5rem',
-                      padding: '1.5rem',
-                      borderRadius: '12px',
-                      border: '1px solid var(--color-border)',
-                      backgroundColor: 'var(--color-card-bg)',
-                      transition: 'all 0.2s ease',
-                    }}
-                    className="compact-post-card">
+                  <Link
+                    key={post.id}
+                    href={`/posts/${post.slug}`}
+                    className="border-0 no-underline hover:bg-transparent"
+                  >
+                    <div className="flex gap-6 p-6 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                       <Image
                         src={imageUrl}
                         alt={coverImage?.alt || post.title}
                         width={150}
                         height={150}
-                        style={{
-                          width: '150px',
-                          height: '150px',
-                          objectFit: 'cover',
-                          borderRadius: '8px',
-                          flexShrink: 0,
-                        }}
+                        className="w-[150px] h-[150px] object-cover rounded-lg flex-shrink-0"
                         sizes="150px"
                       />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                          <span style={{
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: '4px',
-                            backgroundColor: '#eef4fc',
-                            color: 'var(--color-primary)',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            fontFamily: 'var(--font-ui)',
-                          }}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 flex-wrap">
+                          <span className="px-2.5 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-primary text-xs font-semibold font-hand">
                             {post.category}
                           </span>
                           {post.featured && (
-                            <span style={{
-                              padding: '0.2rem 0.6rem',
-                              borderRadius: '4px',
-                              backgroundColor: '#fff3cd',
-                              color: '#856404',
-                              fontSize: '0.65rem',
-                              fontWeight: 700,
-                              fontFamily: 'var(--font-ui)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                            }}>
+                            <span className="px-2.5 py-1 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-[0.65rem] font-bold font-hand uppercase tracking-wide">
                               ⭐ Featured
                             </span>
                           )}
-                          <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
+                          <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                             {formatDate(dateToShow)}
                           </span>
                         </div>
-                        <h4 style={{
-                          margin: '0 0 0.5rem 0',
-                          fontSize: '1.2rem',
-                          color: 'var(--color-text)',
-                          fontFamily: 'var(--font-ui)',
-                          fontWeight: 600,
-                          lineHeight: 1.3,
-                        }}>{post.title}</h4>
-                        <p style={{
-                          margin: 0,
-                          fontSize: '0.95rem',
-                          color: 'var(--color-text-secondary)',
-                          lineHeight: 1.5,
-                        }}>
+                        <h4 className="m-0 mb-2 text-xl text-gray-800 dark:text-gray-100 font-hand font-semibold leading-tight">
+                          {post.title}
+                        </h4>
+                        <p className="m-0 text-[0.95rem] text-gray-600 dark:text-gray-400 leading-normal font-hand">
                           <span dangerouslySetInnerHTML={{ __html: post.content.replace(/<[^>]*>/g, '').slice(0, 100) + '...' }} />
                         </p>
                       </div>
@@ -263,68 +170,45 @@ export default async function Home() {
 
           {/* RIGHT: Featured Posts */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.5rem', margin: 0, color: 'var(--color-primary)', fontWeight: 700, fontFamily: 'var(--font-ui)' }}>FEATURED POSTS</h2>
-              <Link href="/posts" style={{ fontSize: '1rem', color: 'var(--color-primary)', border: 'none', fontFamily: 'var(--font-ui)' }}>View all &rarr;</Link>
+            <div className="flex items-baseline justify-between mb-6">
+              <h2 className="text-2xl m-0 text-primary font-bold font-hand">FEATURED POSTS</h2>
+              <Link href="/posts" className="text-base text-primary border-0 font-hand hover:bg-transparent">
+                View all &rarr;
+              </Link>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div className="flex flex-col gap-8">
               {featuredPosts.map((post) => {
                 const { dateToShow, coverImage } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
-                  <Link key={post.id} href={`/posts/${post.slug}`} style={{ border: 'none', textDecoration: 'none' }}>
-                    <div style={{
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      border: '1px solid var(--color-border)',
-                      backgroundColor: 'var(--color-card-bg)',
-                      transition: 'all 0.3s ease',
-                    }}
-                    className="featured-sidebar-card">
+                  <Link
+                    key={post.id}
+                    href={`/posts/${post.slug}`}
+                    className="border-0 no-underline hover:bg-transparent"
+                  >
+                    <div className="rounded-xl overflow-hidden border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark transition-all duration-300 hover:shadow-md hover:-translate-y-1">
                       <Image
                         src={imageUrl}
                         alt={coverImage?.alt || post.title}
                         width={400}
                         height={250}
-                        style={{
-                          width: '100%',
-                          height: '200px',
-                          objectFit: 'cover',
-                        }}
+                        className="w-full h-[200px] object-cover"
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />
-                      <div style={{ padding: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.6rem',
-                            borderRadius: '4px',
-                            backgroundColor: '#eef4fc',
-                            color: 'var(--color-primary)',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            fontFamily: 'var(--font-ui)',
-                          }}>
+                      <div className="p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="px-2.5 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-primary text-xs font-semibold font-hand">
                             {post.category}
                           </span>
                         </div>
-                        <h4 style={{
-                          margin: '0 0 0.5rem 0',
-                          fontSize: '1.25rem',
-                          color: 'var(--color-text)',
-                          fontFamily: 'var(--font-ui)',
-                          fontWeight: 600,
-                          lineHeight: 1.3,
-                        }}>{post.title}</h4>
-                        <p style={{
-                          margin: '0 0 0.75rem 0',
-                          fontSize: '0.9rem',
-                          color: 'var(--color-text-secondary)',
-                          lineHeight: 1.5,
-                        }}>
+                        <h4 className="m-0 mb-2 text-xl text-gray-800 dark:text-gray-100 font-hand font-semibold leading-tight">
+                          {post.title}
+                        </h4>
+                        <p className="m-0 mb-3 text-sm text-gray-600 dark:text-gray-400 leading-normal font-hand">
                           <span dangerouslySetInnerHTML={{ __html: post.content.replace(/<[^>]*>/g, '').slice(0, 120) + '...' }} />
                         </p>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontFamily: 'var(--font-ui)' }}>
+                        <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                           {formatDate(dateToShow)}
                         </span>
                       </div>

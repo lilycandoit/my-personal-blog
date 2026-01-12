@@ -16,7 +16,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Fetch search data when modal opens
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,7 +31,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen, data.length]);
 
-  // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -44,14 +42,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     };
   }, [isOpen]);
 
-  // Autofocus on open
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isOpen]);
 
-  // Close on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -63,7 +59,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  // Fuse.js instance
   const fuse = useMemo(() => new Fuse(data, {
     keys: [
       { name: 'title', weight: 1 },
@@ -73,7 +68,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     ignoreLocation: true,
   }), [data]);
 
-  // Search
   useEffect(() => {
     if (query.trim() === '') {
       setResults([]);
@@ -95,13 +89,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          zIndex: 9998,
-          animation: 'fadeIn 0.2s ease-out',
-        }}
+        className="fixed inset-0 bg-black/60 z-[9998] animate-[fadeIn_0.2s_ease-out]"
         aria-hidden="true"
       />
 
@@ -111,184 +99,79 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Search"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '90%',
-          maxWidth: '600px',
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-          zIndex: 9999,
-          animation: 'scaleIn 0.2s ease-out',
-          maxHeight: '80vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
+        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[600px] bg-surface-light dark:bg-surface-dark rounded-2xl shadow-2xl z-[9999] scale-in max-h-[80vh] flex flex-col"
       >
         {/* Search Input */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          padding: '1.5rem',
-          borderBottom: '1px solid var(--color-border)',
-        }}>
-          <SearchIcon size={24} color="var(--color-muted)" />
+        <div className="flex items-center gap-4 p-6 border-b border-border-light dark:border-border-dark">
+          <SearchIcon size={24} className="text-muted-light dark:text-muted-dark" />
           <input
             ref={inputRef}
             type="text"
             placeholder="Search posts and projects..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{
-              flex: 1,
-              background: 'transparent',
-              border: 'none',
-              fontSize: '1.1rem',
-              fontFamily: 'var(--font-ui)',
-              outline: 'none',
-              color: 'var(--color-text)',
-            }}
+            className="flex-1 bg-transparent border-0 text-lg font-hand outline-none text-gray-800 dark:text-gray-100 placeholder:text-muted-light dark:placeholder:text-muted-dark"
             aria-label="Search input"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
               aria-label="Clear search"
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '0.5rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                borderRadius: '6px',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              className="bg-transparent border-0 p-2 cursor-pointer flex items-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <X size={20} color="var(--color-muted)" />
+              <X size={20} className="text-muted-light dark:text-muted-dark" />
             </button>
           )}
           <button
             onClick={onClose}
             aria-label="Close search"
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: '0.5rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: '6px',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            className="bg-transparent border-0 p-2 cursor-pointer flex items-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <X size={20} color="var(--color-text)" />
+            <X size={20} className="text-gray-800 dark:text-gray-100" />
           </button>
         </div>
 
         {/* Results */}
-        <div style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '0.5rem',
-        }}>
+        <div className="flex-1 overflow-y-auto p-2">
           {results.length > 0 ? (
             results.map((item, idx) => (
               <Link
                 key={idx}
                 href={item.type === 'post' ? `/posts/${item.slug}` : `/projects/${item.slug}`}
                 onClick={handleSelect}
-                className="search-result-item"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  borderRadius: '8px',
-                  transition: 'background 0.2s ease',
-                  textDecoration: 'none',
-                  marginBottom: '0.25rem',
-                }}
+                className="flex items-center gap-4 p-4 rounded-lg transition-colors no-underline border-0 mb-1 hover:bg-background-light dark:hover:bg-gray-700"
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  backgroundColor: item.type === 'post' ? 'rgba(93, 156, 236, 0.1)' : 'rgba(160, 210, 235, 0.1)',
-                  color: item.type === 'post' ? 'var(--color-primary)' : 'var(--color-secondary)',
-                  flexShrink: 0,
-                }}>
+                <div className={`flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0 ${
+                  item.type === 'post'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-secondary-light/20 dark:bg-secondary-dark/20 text-secondary-light dark:text-secondary-dark'
+                }`}>
                   {item.type === 'post' ? <FileText size={20} /> : <FolderCode size={20} />}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: '1rem',
-                    fontWeight: 600,
-                    color: 'var(--color-text)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    marginBottom: '0.25rem',
-                  }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-semibold text-gray-800 dark:text-gray-100 whitespace-nowrap overflow-hidden text-ellipsis mb-1 font-hand">
                     {item.title}
                   </div>
-                  <div style={{
-                    fontSize: '0.85rem',
-                    color: 'var(--color-muted)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}>
+                  <div className="text-sm text-muted-light dark:text-muted-dark whitespace-nowrap overflow-hidden text-ellipsis font-hand">
                     {item.description || (item.type === 'post' ? item.category : item.status)}
                   </div>
                 </div>
               </Link>
             ))
           ) : query ? (
-            <div style={{
-              padding: '3rem 1.5rem',
-              textAlign: 'center',
-              color: 'var(--color-muted)',
-              fontSize: '1rem',
-            }}>
+            <div className="py-12 px-6 text-center text-muted-light dark:text-muted-dark text-base font-hand">
               No results found for "{query}"
             </div>
           ) : (
-            <div style={{
-              padding: '3rem 1.5rem',
-              textAlign: 'center',
-              color: 'var(--color-muted)',
-              fontSize: '1rem',
-            }}>
+            <div className="py-12 px-6 text-center text-muted-light dark:text-muted-dark text-base font-hand">
               Start typing to search posts and projects
             </div>
           )}
         </div>
 
         {/* Keyboard hint */}
-        <div style={{
-          padding: '1rem 1.5rem',
-          borderTop: '1px solid var(--color-border)',
-          fontSize: '0.85rem',
-          color: 'var(--color-muted)',
-          fontFamily: 'var(--font-ui)',
-          textAlign: 'center',
-        }}>
-          Press <kbd style={{
-            padding: '0.2rem 0.5rem',
-            background: '#f1f5f9',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-          }}>ESC</kbd> to close
+        <div className="px-6 py-4 border-t border-border-light dark:border-border-dark text-sm text-muted-light dark:text-muted-dark font-hand text-center">
+          Press <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded font-mono">ESC</kbd> to close
         </div>
       </div>
     </>

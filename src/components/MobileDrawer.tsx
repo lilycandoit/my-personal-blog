@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { X, Home, FileText, FolderCode, User, Mail, Monitor, Moon, Sun } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useTheme } from 'next-themes';
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ const navItems = [
 export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const pathname = usePathname();
   const drawerRef = useRef<HTMLDivElement>(null);
+  const { theme, setTheme } = useTheme();
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -84,13 +86,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 9998,
-          animation: 'fadeIn 0.2s ease-out',
-        }}
+        className="fixed inset-0 bg-black/50 z-[9998] animate-[fadeIn_0.2s_ease-out]"
         aria-hidden="true"
       />
 
@@ -100,139 +96,80 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Mobile navigation menu"
-        style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: '33.333vw',
-          backgroundColor: 'white',
-          boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.15)',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'slideInRight 0.3s ease-out',
-        }}
+        className="fixed top-0 right-0 bottom-0 w-[40vw] bg-surface-light dark:bg-surface-dark shadow-[-4px_0_24px_rgba(0,0,0,0.15)] z-[9999] flex flex-col slide-in-right"
       >
         {/* Header */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '1rem',
-          borderBottom: '1px solid var(--color-border)',
-        }}>
-          <h2 style={{
-            margin: 0,
-            fontSize: '1rem',
-            fontFamily: 'var(--font-ui)',
-            fontWeight: 700,
-            color: 'var(--color-text)',
-          }}>
+        <div className="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
+          <h2 className="m-0 text-base font-bold font-hand text-gray-800 dark:text-gray-100">
             Menu
           </h2>
           <button
             onClick={onClose}
             aria-label="Close menu"
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: '0.25rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '8px',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            className="bg-transparent border-0 p-1 cursor-pointer flex items-center justify-center rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <X size={20} color="var(--color-text)" />
+            <X size={20} className="text-gray-800 dark:text-gray-100" />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav style={{ flex: 1, padding: '0.25rem 0', overflowY: 'auto' }}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.path === '/'
-              ? pathname === '/'
-              : pathname.startsWith(item.path);
+        {/* Navigation Links and Theme Section */}
+        <div className="flex-1 flex flex-col overflow-y-auto">
+          <nav>
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = item.path === '/'
+                ? pathname === '/'
+                : pathname.startsWith(item.path);
 
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                onClick={onClose}
-                className={clsx('drawer-nav-link', isActive && 'active')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.625rem 1rem',
-                  fontSize: '0.875rem',
-                  fontFamily: 'var(--font-ui)',
-                  fontWeight: 500,
-                  color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
-                  backgroundColor: isActive ? 'rgba(93, 156, 236, 0.08)' : 'transparent',
-                  borderBottom: 'none',
-                  transition: 'background-color 0.2s, color 0.2s',
-                }}
-              >
-                <Icon size={18} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
+              return (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  onClick={onClose}
+                  className={clsx(
+                    'flex items-center gap-3 px-4 py-2.5 text-base font-hand font-medium border-0 transition-all',
+                    isActive
+                      ? 'text-primary bg-primary/10'
+                      : 'text-gray-800 dark:text-gray-100 hover:bg-background-light dark:hover:bg-gray-700 hover:text-primary'
+                  )}
+                >
+                  <Icon size={20} />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Theme Toggle Section */}
-        <div style={{
-          borderTop: '1px solid var(--color-border)',
-          padding: '1rem',
-        }}>
-          <div style={{ marginBottom: '0.5rem', fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-muted)', fontFamily: 'var(--font-ui)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Theme
-          </div>
-          <div style={{ display: 'flex', gap: '0.375rem' }}>
-            {[
-              { label: 'Light', icon: Sun, value: 'light' },
-              { label: 'Dark', icon: Moon, value: 'dark' },
-              { label: 'System', icon: Monitor, value: 'system' },
-            ].map(({ label, icon: Icon, value }) => (
-              <button
-                key={value}
-                aria-label={`Switch to ${label} theme`}
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  padding: '0.5rem 0.25rem',
-                  background: 'transparent',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-ui)',
-                  fontSize: '0.65rem',
-                  color: 'var(--color-text)',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-primary)';
-                  e.currentTarget.style.backgroundColor = 'rgba(93, 156, 236, 0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border)';
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                <Icon size={16} />
-                {label}
-              </button>
-            ))}
+          {/* Theme Toggle Section - Right after nav items */}
+          <div className="border-t border-border-light dark:border-border-dark p-4 mt-4">
+            <div className="mb-3 text-xs font-semibold text-muted-light dark:text-muted-dark font-hand uppercase tracking-wider">
+              Theme
+            </div>
+            <div className="flex gap-2 items-center justify-center">
+              {[
+                { label: 'Light', icon: Sun, value: 'light' },
+                { label: 'Dark', icon: Moon, value: 'dark' },
+                { label: 'System', icon: Monitor, value: 'system' },
+              ].map(({ label, icon: Icon, value }) => {
+                const isActive = theme === value;
+                return (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    aria-label={`Switch to ${label} theme`}
+                    className={clsx(
+                      'flex-1 flex flex-col items-center gap-2 p-2 rounded-lg cursor-pointer font-hand text-xs transition-all border',
+                      isActive
+                        ? 'bg-primary/10 border-primary text-primary'
+                        : 'bg-transparent border-border-light dark:border-border-dark text-gray-800 dark:text-gray-100 hover:border-primary hover:bg-primary/5'
+                    )}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Patrick_Hand } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import NextAuthProvider from './providers';
 
 const patrickHand = Patrick_Hand({
@@ -27,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${patrickHand.variable} ${inter.variable}`}>
         <NextAuthProvider>
           {children}
