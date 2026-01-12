@@ -206,7 +206,11 @@
   }
 
   .slide-in-right {
-    animation: slideInRight 0.3s ease-out;
+    animation: slideInRight 0.5s ease-out;
+  }
+  .slide-in-right-delay {
+    animation: slideInRight 0.5s ease-out;
+    animation-delay: 280ms;
   }
 
   .scale-in {
@@ -214,13 +218,41 @@
   }
 
   .fade-in-up {
-    animation: fadeInUp 0.6s ease-out;
+    animation: fadeInUp 0.6s ease-out both;
+  }
+  .fade-in-up-delay {
+    animation: fadeInUp 0.6s ease-out both;
+    animation-delay: 180ms;
   }
 
   .fade-in-scale {
     animation: fadeInScale 0.6s ease-out;
   }
 }
+
+/* type-writer animation */
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+@keyframes blink  { 80% { border-color: transparent; } }
+
+.typewriter {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  border-right: 2px solid currentColor;
+  animation: typing 1.2s steps(18, end) forwards, blink 0.8s step-end infinite;
+}
+
+.typewriter-2 {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+  border-right: 2px solid currentColor;
+  animation: typing 1.7s steps(44, end) forwards, blink 0.8s step-end infinite;
+  animation-delay: 1.25s; /* start after title */
+}
+
 
 /* TipTap Editor Styles */
 .tiptap {
