@@ -64,6 +64,9 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    console.log('[Project Update] Received data:', JSON.stringify(body, null, 2));
+
     const validatedData = projectUpdateSchema.parse(body);
 
     const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
@@ -72,7 +75,9 @@ export async function PUT(
     const sanitizedName = name ? sanitizeText(name) : undefined;
     const sanitizedDescription = description ? sanitizeText(description) : undefined;
     const sanitizedStack = stack ? sanitizeText(stack) : undefined;
-    const sanitizedLearnings = learnings ? sanitizeText(learnings) : '';
+    const sanitizedLearnings = learnings !== undefined ? sanitizeText(learnings) : undefined;
+
+    console.log('[Project Update] Validated and sanitized data');
 
     // First, disconnect all existing images
     await prisma.project.update({
@@ -84,6 +89,8 @@ export async function PUT(
       },
     });
 
+    console.log('[Project Update] Disconnected existing images');
+
     // Then update the project with new data
     const project = await prisma.project.update({
       where: { id },
@@ -92,12 +99,12 @@ export async function PUT(
         ...(sanitizedDescription && { description: sanitizedDescription }),
         ...(sanitizedStack && { stack: sanitizedStack }),
         ...(status && { status }),
-        learnings: sanitizedLearnings,
-        githubUrl: githubUrl || null,
-        demoUrl: demoUrl || null,
-        demoVideoUrl: demoVideoUrl || null,
-        builtDate: builtDate ? new Date(builtDate) : null,
-        coverImageId: coverImageId || null,
+        ...(sanitizedLearnings !== undefined && { learnings: sanitizedLearnings }),
+        ...(githubUrl !== undefined && { githubUrl: githubUrl || null }),
+        ...(demoUrl !== undefined && { demoUrl: demoUrl || null }),
+        ...(demoVideoUrl !== undefined && { demoVideoUrl: demoVideoUrl || null }),
+        ...(builtDate !== undefined && { builtDate: builtDate ? new Date(builtDate) : null }),
+        ...(coverImageId !== undefined && { coverImageId: coverImageId || null }),
         images: {
           connect: imageIds?.map(imageId => ({ id: imageId })) || [],
         },
@@ -107,14 +114,17 @@ export async function PUT(
       },
     });
 
+    console.log('[Project Update] Successfully updated project:', project.id);
     return NextResponse.json(project);
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('[Project Update] Validation error:', error.issues);
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
-    console.error('Error updating project:', error);
+    console.error('[Project Update] Error details:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update project';
     return NextResponse.json(
-      { error: 'Failed to update project' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

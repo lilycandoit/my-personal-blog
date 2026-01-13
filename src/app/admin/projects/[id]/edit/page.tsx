@@ -89,11 +89,16 @@ export default function EditProject() {
       if (res.ok) {
         router.push('/admin');
       } else {
-        alert('Error updating project');
+        const errorData = await res.json();
+        console.error('API Error:', errorData);
+        const errorMessage = typeof errorData.error === 'string'
+          ? errorData.error
+          : JSON.stringify(errorData.error);
+        alert(`Error updating project: ${errorMessage}`);
       }
     } catch (error) {
       console.error('Error updating project:', error);
-      alert('Error updating project');
+      alert(`Error updating project: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
