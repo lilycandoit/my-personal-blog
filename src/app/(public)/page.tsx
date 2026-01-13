@@ -28,7 +28,7 @@ export default async function Home() {
       visibility: 'public',
       id: { notIn: latestPostIds }
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { updatedAt: 'desc' }, // Most recently updated featured posts first
     take: 6,
     include: {
       images: true,

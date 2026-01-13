@@ -23,7 +23,7 @@ const postSchema = z.object({
 export async function GET() {
   try {
     const posts = await prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { updatedAt: 'desc' }, // Most recently updated posts first
       include: {
         images: true,
       },

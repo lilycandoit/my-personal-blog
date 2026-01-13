@@ -21,7 +21,10 @@ function getExcerpt(htmlContent: string, maxLength: number = 150): string {
 
 export default async function ProjectsPage() {
   const projects = await prisma.project.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: [
+      { builtDate: { sort: 'desc', nulls: 'last' } }, // Newest projects first (like resume), projects without builtDate at end
+      { createdAt: 'desc' }, // For projects with same builtDate or no builtDate, newest first
+    ],
     include: {
       images: true,
     },

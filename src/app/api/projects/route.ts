@@ -26,7 +26,10 @@ const projectSchema = z.object({
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { builtDate: { sort: 'desc', nulls: 'last' } }, // Newest projects first (like resume), projects without builtDate at end
+        { createdAt: 'desc' }, // For projects with same builtDate or no builtDate, newest first
+      ],
       include: {
         images: true,
       },

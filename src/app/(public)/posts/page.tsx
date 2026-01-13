@@ -22,7 +22,7 @@ function getExcerpt(htmlContent: string, maxLength: number = 150): string {
 export default async function PostsPage() {
   const posts = await prisma.post.findMany({
     where: { visibility: 'public' },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { updatedAt: 'desc' }, // Most recently updated posts first
     include: {
       images: true,
     },
