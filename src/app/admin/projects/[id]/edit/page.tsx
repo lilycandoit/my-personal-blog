@@ -42,7 +42,9 @@ export default function EditProject() {
         setName(project.name);
         setDescription(project.description);
         setStack(project.stack);
-        setStatus(project.status);
+        // Normalize status to match enum values
+        const normalizedStatus = project.status === 'completed' ? 'completed' : 'in-progress';
+        setStatus(normalizedStatus);
         setLearnings(project.learnings || '');
         setGithubUrl(project.githubUrl || '');
         setDemoUrl(project.demoUrl || '');
@@ -156,7 +158,7 @@ export default function EditProject() {
         </div>
 
         <div>
-           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>What worked? What didn't?</label>
+           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>What worked? What didn&apos;t?</label>
            <textarea
                style={{ minHeight: '100px' }}
                value={learnings}

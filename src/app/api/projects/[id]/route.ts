@@ -67,6 +67,16 @@ export async function PUT(
 
     console.log('[Project Update] Received data:', JSON.stringify(body, null, 2));
 
+    // Normalize status value to match enum (handle legacy data)
+    if (body.status && typeof body.status === 'string') {
+      const statusLower = body.status.toLowerCase().replace(/\s+/g, '-');
+      if (statusLower.includes('progress')) {
+        body.status = 'in-progress';
+      } else if (statusLower.includes('complete')) {
+        body.status = 'completed';
+      }
+    }
+
     const validatedData = projectUpdateSchema.parse(body);
 
     const { name, description, stack, status, learnings, githubUrl, demoUrl, demoVideoUrl, builtDate, imageIds, coverImageId } = validatedData;
