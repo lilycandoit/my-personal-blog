@@ -32,6 +32,12 @@ export async function GET() {
       },
     });
 
+    console.log('[API Projects] Raw projects from DB:', projects.map(p => ({
+      name: p.name,
+      builtDate: p.builtDate,
+      createdAt: p.createdAt,
+    })));
+
     // Sort in JavaScript: newest builtDate first, nulls at end
     const sortedProjects = projects.sort((a, b) => {
       // Projects without builtDate go to the end
@@ -41,9 +47,14 @@ export async function GET() {
       if (!a.builtDate) return 1;  // a goes after b
       if (!b.builtDate) return -1; // b goes after a
 
-      // Both have builtDate, sort newest first
-      return new Date(b.builtDate).getTime() - new Date(a.builtDate).getTime();
+      // Both have builtDate, sort newest first (descending)
+      const dateA = new Date(a.builtDate).getTime();
+      const dateB = new Date(b.builtDate).getTime();
+
+      return dateB - dateA; // Higher timestamp first (newer)
     });
+
+    console.log('[API Projects] Sorted order:', sortedProjects.map(p => `${p.name} (${p.builtDate || 'no date'})`));
 
     return NextResponse.json(sortedProjects);
   } catch (error) {
