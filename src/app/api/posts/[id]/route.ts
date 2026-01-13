@@ -68,17 +68,8 @@ export async function PUT(
     const sanitizedTitle = title ? sanitizeText(title) : undefined;
     const sanitizedContent = content ? sanitizeText(content) : undefined;
 
-    // First, disconnect all existing images
-    await prisma.post.update({
-      where: { id },
-      data: {
-        images: {
-          set: [],
-        },
-      },
-    });
-
-    // Then update the post with new data
+    // Update post with new data in a single database operation
+    // Using 'set' replaces all image relations at once (clears + connects)
     const post = await prisma.post.update({
       where: { id },
       data: {
@@ -89,7 +80,7 @@ export async function PUT(
         ...(featured !== undefined && { featured }),
         coverImageId: coverImageId || null,
         images: {
-          connect: imageIds?.map(imageId => ({ id: imageId })) || [],
+          set: imageIds?.map(imageId => ({ id: imageId })) || [],
         },
       },
       include: {

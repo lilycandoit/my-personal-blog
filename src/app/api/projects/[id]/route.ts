@@ -89,19 +89,8 @@ export async function PUT(
 
     console.log('[Project Update] Validated and sanitized data');
 
-    // First, disconnect all existing images
-    await prisma.project.update({
-      where: { id },
-      data: {
-        images: {
-          set: [],
-        },
-      },
-    });
-
-    console.log('[Project Update] Disconnected existing images');
-
-    // Then update the project with new data
+    // Update project with new data in a single database operation
+    // Using 'set' replaces all image relations at once (clears + connects)
     const project = await prisma.project.update({
       where: { id },
       data: {
@@ -116,7 +105,7 @@ export async function PUT(
         ...(builtDate !== undefined && { builtDate: builtDate ? new Date(builtDate) : null }),
         ...(coverImageId !== undefined && { coverImageId: coverImageId || null }),
         images: {
-          connect: imageIds?.map(imageId => ({ id: imageId })) || [],
+          set: imageIds?.map(imageId => ({ id: imageId })) || [],
         },
       },
       include: {
