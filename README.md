@@ -22,10 +22,10 @@ Designed as a scalable personal platform for writing, learning logs, and portfol
 * **Framework**: Next.js 16 (App Router)
 * **Database**: PostgreSQL + Prisma ORM
 * **Authentication**: NextAuth (Credentials)
-* **Storage**: Vercel Blob
+* **Storage**: Cloudinary
 * **Editor**: TipTap
 * **Search**: Fuse.js
-* **Styling**: Custom CSS, Inter & Patrick Hand fonts
+* **Styling**: Tailwind CSS, Inter & Patrick Hand fonts
 
 ---
 

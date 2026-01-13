@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { sanitizeText } from '@/lib/sanitize';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const projectUpdateSchema = z.object({
   name: z.string().min(1, "Name is required").optional(),
@@ -10,9 +11,9 @@ const projectUpdateSchema = z.object({
   stack: z.string().min(1, "Stack is required").optional(),
   status: z.enum(['in-progress', 'completed']).optional(),
   learnings: z.string().optional(),
-  githubUrl: z.string().url().optional().or(z.literal('')),
-  demoUrl: z.string().url().optional().or(z.literal('')),
-  demoVideoUrl: z.string().url().optional().or(z.literal('')),
+  githubUrl: z.union([z.string().url(), z.literal('')]).optional(),
+  demoUrl: z.union([z.string().url(), z.literal('')]).optional(),
+  demoVideoUrl: z.union([z.string().url(), z.literal('')]).optional(),
   builtDate: z.string().optional(),
   imageIds: z.array(z.string()).optional(),
   coverImageId: z.string().nullable().optional(),
@@ -55,7 +56,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -124,7 +125,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
