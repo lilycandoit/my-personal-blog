@@ -25,16 +25,27 @@ const projectSchema = z.object({
 // GET - Fetch all projects
 export async function GET() {
   try {
+    // Fetch all projects
     const projects = await prisma.project.findMany({
-      orderBy: [
-        { builtDate: { sort: 'desc', nulls: 'last' } }, // Newest projects first (like resume), projects without builtDate at end
-        { createdAt: 'desc' }, // For projects with same builtDate or no builtDate, newest first
-      ],
       include: {
         images: true,
       },
     });
-    return NextResponse.json(projects);
+
+    // Sort in JavaScript: newest builtDate first, nulls at end
+    const sortedProjects = projects.sort((a, b) => {
+      // Projects without builtDate go to the end
+      if (!a.builtDate && !b.builtDate) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      if (!a.builtDate) return 1;  // a goes after b
+      if (!b.builtDate) return -1; // b goes after a
+
+      // Both have builtDate, sort newest first
+      return new Date(b.builtDate).getTime() - new Date(a.builtDate).getTime();
+    });
+
+    return NextResponse.json(sortedProjects);
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });

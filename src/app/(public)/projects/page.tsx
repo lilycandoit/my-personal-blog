@@ -20,14 +20,24 @@ function getExcerpt(htmlContent: string, maxLength: number = 150): string {
 }
 
 export default async function ProjectsPage() {
-  const projects = await prisma.project.findMany({
-    orderBy: [
-      { builtDate: { sort: 'desc', nulls: 'last' } }, // Newest projects first (like resume), projects without builtDate at end
-      { createdAt: 'desc' }, // For projects with same builtDate or no builtDate, newest first
-    ],
+  // Fetch all projects
+  const allProjects = await prisma.project.findMany({
     include: {
       images: true,
     },
+  });
+
+  // Sort in JavaScript: newest builtDate first, nulls at end
+  const projects = allProjects.sort((a, b) => {
+    // Projects without builtDate go to the end
+    if (!a.builtDate && !b.builtDate) {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+    if (!a.builtDate) return 1;  // a goes after b
+    if (!b.builtDate) return -1; // b goes after a
+
+    // Both have builtDate, sort newest first
+    return new Date(b.builtDate).getTime() - new Date(a.builtDate).getTime();
   });
 
   return (
