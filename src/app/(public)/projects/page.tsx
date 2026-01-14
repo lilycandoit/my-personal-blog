@@ -27,33 +27,16 @@ export default async function ProjectsPage() {
     },
   });
 
-  // Log for debugging production
-  console.log('[Projects Page] Raw projects from DB:', allProjects.map(p => ({
-    name: p.name,
-    builtDate: p.builtDate,
-    builtDateType: typeof p.builtDate,
-    createdAt: p.createdAt,
-  })));
-
-  // Sort in JavaScript: newest builtDate first, nulls at end
+  // Sort in JavaScript: newest date first (using builtDate or createdAt as fallback)
+  // This matches the display logic where we show builtDate || createdAt
   const projects = allProjects.sort((a, b) => {
-    // Projects without builtDate go to the end
-    if (!a.builtDate && !b.builtDate) {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    }
-    if (!a.builtDate) return 1;  // a goes after b
-    if (!b.builtDate) return -1; // b goes after a
+    // Use builtDate if available, otherwise fall back to createdAt (same as display logic)
+    const dateA = new Date(a.builtDate || a.createdAt).getTime();
+    const dateB = new Date(b.builtDate || b.createdAt).getTime();
 
-    // Both have builtDate, sort newest first (descending)
-    const dateA = new Date(a.builtDate).getTime();
-    const dateB = new Date(b.builtDate).getTime();
-
-    console.log(`[Projects Page] Comparing ${a.name} (${a.builtDate}, ${dateA}) vs ${b.name} (${b.builtDate}, ${dateB})`);
-
-    return dateB - dateA; // Higher timestamp first (newer)
+    // Sort newest first (descending)
+    return dateB - dateA;
   });
-
-  console.log('[Projects Page] Sorted order:', projects.map(p => `${p.name} (${p.builtDate || 'no date'})`));
 
   return (
     <div className="max-w-[1400px] mx-auto px-8">
