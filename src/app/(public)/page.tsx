@@ -40,6 +40,9 @@ export default async function Home() {
       month: 'short',
       day: '2-digit',
       year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
     }).format(date);
   };
 
@@ -78,7 +81,7 @@ export default async function Home() {
             </div>
 
             {latestBig && (() => {
-              const { dateToShow, coverImage } = getPostMeta(latestBig);
+              const { dateToShow, coverImage, wasEdited } = getPostMeta(latestBig);
               const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
               return (
                 <Link
@@ -106,6 +109,11 @@ export default async function Home() {
                         )}
                         <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                           {formatDate(dateToShow)}
+                          {wasEdited && (
+                            <span className="text-xs text-primary ml-2">
+                              (Updated)
+                            </span>
+                          )}
                         </span>
                       </div>
                       <h3 className="m-0 mb-4 text-[1.75rem] text-gray-800 dark:text-gray-100 font-hand font-bold leading-tight">
@@ -123,7 +131,7 @@ export default async function Home() {
             {/* Compact Latest Posts */}
             <div className="flex flex-col gap-6">
               {latestCompact.map((post) => {
-                const { dateToShow, coverImage } = getPostMeta(post);
+                const { dateToShow, coverImage, wasEdited } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link
@@ -152,6 +160,11 @@ export default async function Home() {
                           )}
                           <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                             {formatDate(dateToShow)}
+                            {wasEdited && (
+                              <span className="text-xs text-primary ml-2">
+                                (Updated)
+                              </span>
+                            )}
                           </span>
                         </div>
                         <h4 className="m-0 mb-2 text-xl text-gray-800 dark:text-gray-100 font-hand font-semibold leading-tight">
@@ -179,7 +192,7 @@ export default async function Home() {
 
             <div className="flex flex-col gap-8">
               {featuredPosts.map((post) => {
-                const { dateToShow, coverImage } = getPostMeta(post);
+                const { dateToShow, coverImage, wasEdited } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link
@@ -210,6 +223,11 @@ export default async function Home() {
                         </p>
                         <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
                           {formatDate(dateToShow)}
+                          {wasEdited && (
+                            <span className="text-xs text-primary ml-2">
+                              (Updated)
+                            </span>
+                          )}
                         </span>
                       </div>
                     </div>
