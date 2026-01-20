@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
 import { reminders } from '@/../data/reminders';
 
@@ -16,19 +15,11 @@ function getDayHash(dateString: string): number {
 }
 
 export default function KindReminder() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const today = new Date().toISOString().split('T')[0];
   const dayHash = getDayHash(today + 'reminder');
   const dailyReminder = reminders.length > 0
     ? reminders[dayHash % reminders.length]
     : "Take care of yourself today! 💙";
-
-  if (!mounted) return null;
 
   return (
     <div className="p-8 rounded-2xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 shadow-sm transition-transform hover:-translate-y-1">
@@ -41,7 +32,7 @@ export default function KindReminder() {
         </h3>
       </div>
 
-      <p className="m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand">
+      <p className="m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand" suppressHydrationWarning>
         {dailyReminder}
       </p>
     </div>

@@ -3,7 +3,8 @@ import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
 import DailyQuote from '@/components/DailyQuote';
 
-export const dynamic = 'force-dynamic';
+// Revalidate every 1 hour - pages are cached and served from CDN
+export const revalidate = 3600;
 
 export const metadata = {
   title: 'Posts',

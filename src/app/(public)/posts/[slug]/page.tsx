@@ -3,7 +3,17 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
+// Revalidate every 1 hour - pages are cached and served from CDN
+export const revalidate = 3600;
+
+// Pre-generate pages for all existing posts at build time
+export async function generateStaticParams() {
+  const posts = await prisma.post.findMany({
+    where: { visibility: 'public' },
+    select: { slug: true },
+  });
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

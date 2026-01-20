@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Quote } from 'lucide-react';
 import { quotes } from '@/../data/quotes';
 
@@ -20,12 +19,6 @@ interface DailyQuoteProps {
 }
 
 export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const today = new Date().toISOString().split('T')[0];
   const salt = variant === 'posts' ? 'posts-quote' : variant === 'projects' ? 'projects-quote' : '';
   const dayHash = getDayHash(today + salt);
@@ -45,8 +38,6 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
     formattedQuote = `"${quoteText}" - ${author}`;
   }
 
-  if (!mounted) return null;
-
   return (
     <div className="p-8 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 shadow-sm transition-transform hover:-translate-y-1">
       <div className="flex items-center gap-4 mb-4">
@@ -58,7 +49,10 @@ export default function DailyQuote({ variant = 'home' }: DailyQuoteProps) {
         </h3>
       </div>
 
-      <blockquote className={`m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand ${!isJoke ? 'italic' : ''}`}>
+      <blockquote
+        className={`m-0 text-lg leading-relaxed text-gray-800 dark:text-gray-200 font-hand ${!isJoke ? 'italic' : ''}`}
+        suppressHydrationWarning
+      >
         {formattedQuote}
       </blockquote>
     </div>

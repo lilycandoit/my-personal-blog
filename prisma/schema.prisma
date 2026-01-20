@@ -27,6 +27,13 @@ model Post {
   images       Image[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Indexes for query performance
+  @@index([visibility])
+  @@index([featured])
+  @@index([updatedAt])
+  @@index([visibility, featured])
+  @@index([visibility, updatedAt])
 }
 
 model Project {
@@ -45,6 +52,10 @@ model Project {
   images       Image[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Indexes for query performance
+  @@index([builtDate])
+  @@index([createdAt])
 }
 
 model Image {

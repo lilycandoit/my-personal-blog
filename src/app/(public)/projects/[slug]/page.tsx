@@ -4,7 +4,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ImageWithZoom from '@/components/ImageWithZoom';
 
-export const dynamic = 'force-dynamic';
+// Revalidate every 1 hour - pages are cached and served from CDN
+export const revalidate = 3600;
+
+// Pre-generate pages for all existing projects at build time
+export async function generateStaticParams() {
+  const projects = await prisma.project.findMany({
+    select: { slug: true },
+  });
+  return projects.map((project) => ({ slug: project.slug }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

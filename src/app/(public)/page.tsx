@@ -5,35 +5,34 @@ import Hero from '@/components/Hero';
 import DailyQuote from '@/components/DailyQuote';
 import KindReminder from '@/components/KindReminder';
 
-export const dynamic = 'force-dynamic';
+// Revalidate every 1 hour - pages are cached and served from CDN
+export const revalidate = 3600;
 
 export default async function Home() {
-  // Fetch latest posts (only public)
-  const latestPosts = await prisma.post.findMany({
-    where: { visibility: 'public' },
-    orderBy: { updatedAt: 'desc' },
-    take: 4, // Get 4 for new layout (1 big + 3 compact)
-    include: {
-      images: true,
-    },
-  });
+  // Fetch latest posts and featured posts in parallel for better performance
+  const [latestPosts, allFeaturedPosts] = await Promise.all([
+    prisma.post.findMany({
+      where: { visibility: 'public' },
+      orderBy: { updatedAt: 'desc' },
+      take: 4,
+      include: { images: true },
+    }),
+    prisma.post.findMany({
+      where: {
+        featured: true,
+        visibility: 'public',
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 10, // Fetch extra to filter out duplicates
+      include: { images: true },
+    }),
+  ]);
 
-  // Get IDs of latest posts to exclude from featured section
-  const latestPostIds = latestPosts.map(p => p.id);
-
-  // Fetch featured posts (only public, exclude latest posts to avoid duplication)
-  const featuredPosts = await prisma.post.findMany({
-    where: {
-      featured: true,
-      visibility: 'public',
-      id: { notIn: latestPostIds }
-    },
-    orderBy: { updatedAt: 'desc' }, // Most recently updated featured posts first
-    take: 6,
-    include: {
-      images: true,
-    },
-  }).then(posts => posts.slice(0, 3));
+  // Filter out posts that are already in latestPosts
+  const latestPostIds = new Set(latestPosts.map(p => p.id));
+  const featuredPosts = allFeaturedPosts
+    .filter(p => !latestPostIds.has(p.id))
+    .slice(0, 3);
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
