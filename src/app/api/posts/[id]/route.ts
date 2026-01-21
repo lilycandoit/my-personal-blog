@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
@@ -88,6 +89,11 @@ export async function PUT(
       },
     });
 
+    // Revalidate cached pages so changes appear immediately
+    revalidatePath('/');
+    revalidatePath('/posts');
+    revalidatePath(`/posts/${post.slug}`);
+
     return NextResponse.json(post);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -114,9 +120,22 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    // Get the post slug before deleting (for revalidation)
+    const post = await prisma.post.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
     await prisma.post.delete({
       where: { id },
     });
+
+    // Revalidate cached pages
+    revalidatePath('/');
+    revalidatePath('/posts');
+    if (post?.slug) {
+      revalidatePath(`/posts/${post.slug}`);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
@@ -113,6 +114,11 @@ export async function PUT(
       },
     });
 
+    // Revalidate cached pages so changes appear immediately
+    revalidatePath('/');
+    revalidatePath('/projects');
+    revalidatePath(`/projects/${project.slug}`);
+
     console.log('[Project Update] Successfully updated project:', project.id);
     return NextResponse.json(project);
   } catch (error) {
@@ -142,9 +148,22 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    // Get the project slug before deleting (for revalidation)
+    const project = await prisma.project.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
     await prisma.project.delete({
       where: { id },
     });
+
+    // Revalidate cached pages
+    revalidatePath('/');
+    revalidatePath('/projects');
+    if (project?.slug) {
+      revalidatePath(`/projects/${project.slug}`);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

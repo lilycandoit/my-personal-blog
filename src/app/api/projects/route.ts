@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { z } from 'zod';
@@ -84,6 +85,11 @@ export async function POST(req: Request) {
         },
       },
     });
+
+    // Revalidate cached pages so new project appears immediately
+    revalidatePath('/');
+    revalidatePath('/projects');
+
     return NextResponse.json(project);
   } catch (e) {
     if (e instanceof z.ZodError) {
