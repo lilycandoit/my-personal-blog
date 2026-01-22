@@ -53,43 +53,56 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
         margin: '0 auto',
         padding: '0 2rem 4rem',
       }}>
+        {/* Header: Title and Date/Location inline */}
+        <header
+          className="project-title-row"
+          style={{
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            flexWrap: 'wrap',
+          }}
+        >
+          <h1 style={{
+            margin: 0,
+            fontSize: '2.5rem',
+            lineHeight: 1.2,
+            fontWeight: 700,
+          }}>
+            {project.name}
+          </h1>
+          <span
+            className="project-date"
+            style={{
+              fontSize: '1rem',
+              color: 'var(--color-muted)',
+              fontFamily: 'var(--font-hand)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {formattedDate}
+          </span>
+        </header>
+
         {/* Grid Layout: 1/3 Sidebar + 2/3 Description */}
         <div className="project-single-grid" style={{ marginBottom: '3rem' }}>
           {/* Left Sidebar (1/3) */}
           <div>
-            {/* Title, Date and Status */}
+            {/* Status Tag */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <div
-                className="project-title-row"
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  justifyContent: 'space-between',
-                  gap: '1rem',
-                  marginBottom: '0.5rem',
-                }}
-              >
-                <h1 style={{
-                  margin: 0,
-                  fontSize: '2.5rem',
-                  lineHeight: 1.2,
-                  fontWeight: 700,
-                }}>
-                  {project.name}
-                </h1>
-                <span
-                  className="project-date"
-                  style={{
-                    fontSize: '0.9rem',
-                    color: 'var(--color-muted)',
-                    fontFamily: 'var(--font-ui)',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {formattedDate}
-                </span>
-              </div>
-              <span className="tag" style={{ fontSize: '0.9rem', padding: '4px 10px' }}>
+              <span style={{
+                display: 'inline-block',
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+                fontSize: '0.9rem',
+                fontWeight: 600,
+                textTransform: 'capitalize',
+                background: project.status === 'completed' ? '#dcfce7' : '#e0f2fe',
+                color: project.status === 'completed' ? '#166534' : '#0369a1',
+                border: project.status === 'completed' ? '1px solid #bbf7d0' : '1px solid #bae6fd',
+              }}>
                 {project.status}
               </span>
             </div>

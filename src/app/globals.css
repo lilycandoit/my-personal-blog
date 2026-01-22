@@ -312,6 +312,42 @@
   @apply border-primary ring-4 ring-primary/10;
 }
 
+/* Project Gallery */
+.project-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .project-gallery {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Project Single Page Grid */
+.project-single-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 3rem;
+}
+
+@media (max-width: 768px) {
+  .project-single-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .project-title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .project-date {
+    font-size: 0.85rem !important;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .admin-container {
