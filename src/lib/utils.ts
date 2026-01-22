@@ -29,12 +29,13 @@ export function formatDate(
   const d = typeof date === 'string' ? new Date(date) : date;
 
   if (options === 'month-year') {
-    // Month-year format doesn't include location (used for projects)
-    return new Intl.DateTimeFormat('en-AU', {
+    // Month-year format with location (e.g., "Jan 2026, Sydney")
+    const dateStr = new Intl.DateTimeFormat('en-AU', {
       month: 'short',
       year: 'numeric',
       timeZone: timezone,
     }).format(d);
+    return `${dateStr}, ${location}`;
   }
 
   if (options === 'full') {

@@ -35,14 +35,18 @@ export async function GET() {
     });
 
     // Sort in JavaScript: newest date first (using builtDate or createdAt as fallback)
-    // This matches the display logic where we show builtDate || createdAt
+    // When builtDates are equal (same month), use createdAt as tiebreaker
     const sortedProjects = projects.sort((a, b) => {
-      // Use builtDate if available, otherwise fall back to createdAt (same as display logic)
-      const dateA = new Date(a.builtDate || a.createdAt).getTime();
-      const dateB = new Date(b.builtDate || b.createdAt).getTime();
+      const builtDateA = new Date(a.builtDate || a.createdAt).getTime();
+      const builtDateB = new Date(b.builtDate || b.createdAt).getTime();
 
-      // Sort newest first (descending)
-      return dateB - dateA;
+      // If builtDates are different, sort by builtDate (newest first)
+      if (builtDateB !== builtDateA) {
+        return builtDateB - builtDateA;
+      }
+
+      // If builtDates are the same, use createdAt as tiebreaker (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
     return NextResponse.json(sortedProjects);
