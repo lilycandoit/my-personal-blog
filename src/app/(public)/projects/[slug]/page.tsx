@@ -49,7 +49,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
     <article style={{ margin: '2rem', padding: 0 }}>
       {/* Main Content Container */}
       <div style={{
-        maxWidth: '1200px',
+        maxWidth: '900px',
         margin: '0 auto',
         padding: '0 2rem 4rem',
       }}>
