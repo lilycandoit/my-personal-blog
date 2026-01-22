@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { formatDate } from '@/lib/utils';
+import { getPosts } from '@/lib/posts';
 import Link from 'next/link';
 import { PenLine, FileText, LayoutGrid, Plus, Edit } from 'lucide-react';
 
@@ -9,10 +10,7 @@ export default async function AdminDashboard() {
   const [postCount, projectCount, recentPosts] = await Promise.all([
     prisma.post.count(),
     prisma.project.count(),
-    prisma.post.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 5
-    })
+    getPosts({ limit: 5 })
   ]);
 
   const prompts = [

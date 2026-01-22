@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { prisma } from '@/lib/prisma';
+import { getProjects } from '@/lib/projects';
 import { formatDate } from '@/lib/utils';
 import DailyQuote from '@/components/DailyQuote';
 
@@ -22,31 +22,8 @@ function getExcerpt(htmlContent: string, maxLength: number = 150): string {
 }
 
 export default async function ProjectsPage() {
-  // Fetch all projects
-  const allProjects = await prisma.project.findMany({
-    include: {
-      images: true,
-    },
-  });
-
-  // Sort in JavaScript: newest date first (using builtDate or createdAt as fallback)
-  // When builtDates are in the same month, use createdAt as tiebreaker
-  const projects = allProjects.sort((a, b) => {
-    const dateA = new Date(a.builtDate || a.createdAt);
-    const dateB = new Date(b.builtDate || b.createdAt);
-
-    // Compare year and month only (ignore day/time since builtDate is month-only)
-    const yearMonthA = dateA.getFullYear() * 12 + dateA.getMonth();
-    const yearMonthB = dateB.getFullYear() * 12 + dateB.getMonth();
-
-    // If different months, sort by month (newest first)
-    if (yearMonthB !== yearMonthA) {
-      return yearMonthB - yearMonthA;
-    }
-
-    // Same month - use createdAt as tiebreaker (newest first)
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-  });
+  // Fetch all projects (already sorted by the utility)
+  const projects = await getProjects();
 
   return (
     <div className="max-w-[1400px] mx-auto px-8">

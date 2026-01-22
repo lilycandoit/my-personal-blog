@@ -1,7 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { formatDate } from '@/lib/utils';
+import { getProjectBySlug, getAllProjectSlugs } from '@/lib/projects';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import ImageWithZoom from '@/components/ImageWithZoom';
 
@@ -10,15 +9,13 @@ export const revalidate = 3600;
 
 // Pre-generate pages for all existing projects at build time
 export async function generateStaticParams() {
-  const projects = await prisma.project.findMany({
-    select: { slug: true },
-  });
-  return projects.map((project) => ({ slug: project.slug }));
+  const slugs = await getAllProjectSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const project = await prisma.project.findUnique({ where: { slug }});
+    const project = await getProjectBySlug(slug);
     if (!project) return {};
     return { title: project.name };
 }
@@ -26,12 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function Project({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({
-    where: { slug },
-    include: {
-      images: true,
-    },
-  });
+  const project = await getProjectBySlug(slug);
 
 
   if (!project) {

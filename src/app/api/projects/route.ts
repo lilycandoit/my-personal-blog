@@ -7,6 +7,7 @@ import { slugify } from '@/lib/utils';
 import { sanitizeText } from '@/lib/sanitize';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { DEFAULT_TIMEZONE, DEFAULT_LOCATION } from '@/lib/config';
+import { getProjects } from '@/lib/projects';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,36 +25,11 @@ const projectSchema = z.object({
   coverImageId: z.string().nullable().optional(),
 });
 
-// GET - Fetch all projects
+// GET - Fetch all projects (uses shared utility for consistent sorting)
 export async function GET() {
   try {
-    // Fetch all projects
-    const projects = await prisma.project.findMany({
-      include: {
-        images: true,
-      },
-    });
-
-    // Sort in JavaScript: newest date first (using builtDate or createdAt as fallback)
-    // When builtDates are in the same month, use createdAt as tiebreaker
-    const sortedProjects = projects.sort((a, b) => {
-      const dateA = new Date(a.builtDate || a.createdAt);
-      const dateB = new Date(b.builtDate || b.createdAt);
-
-      // Compare year and month only (ignore day/time since builtDate is month-only)
-      const yearMonthA = dateA.getFullYear() * 12 + dateA.getMonth();
-      const yearMonthB = dateB.getFullYear() * 12 + dateB.getMonth();
-
-      // If different months, sort by month (newest first)
-      if (yearMonthB !== yearMonthA) {
-        return yearMonthB - yearMonthA;
-      }
-
-      // Same month - use createdAt as tiebreaker (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    return NextResponse.json(sortedProjects);
+    const projects = await getProjects();
+    return NextResponse.json(projects);
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json({ error: 'Failed to fetch projects' }, { status: 500 });
