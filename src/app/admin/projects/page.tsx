@@ -11,10 +11,10 @@ export default async function AdminProjectsPage() {
   const projects = await getProjects();
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0 }}>All Projects</h1>
-        <Link href="/admin/projects/new" className="primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="max-w-[1200px] mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="m-0">All Projects</h1>
+        <Link href="/admin/projects/new" className="primary flex items-center gap-2">
           <Plus size={18} /> New Project
         </Link>
       </div>

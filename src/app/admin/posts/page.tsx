@@ -11,10 +11,10 @@ export default async function AdminPostsPage() {
   const posts = await getAllPosts();
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 style={{ margin: 0 }}>All Posts</h1>
-        <Link href="/admin/posts/new" className="primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="max-w-[1200px] mx-auto">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="m-0">All Posts</h1>
+        <Link href="/admin/posts/new" className="primary flex items-center gap-2">
           <Plus size={18} /> New Post
         </Link>
       </div>

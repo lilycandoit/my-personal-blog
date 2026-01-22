@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [status, router, isLoginPage]);
 
   if (status === 'loading') {
-    return <div style={{ padding: '2rem' }}>Loading...</div>;
+    return <div className="p-8">Loading...</div>;
   }
 
   if (!session && !isLoginPage) {
@@ -33,11 +33,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
 
   return (
-    <div className="admin-container" style={{ width: '100%', minHeight: '100vh' }}>
+    <div className="admin-container w-full min-h-screen">
 
         <aside className="admin-sidebar">
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '2rem', color: 'var(--color-primary)' }}>Admin Space</h2>
-            <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <h2 className="text-xl font-bold mb-8 text-primary">Admin Space</h2>
+            <nav className="flex-1 flex flex-col gap-1">
                 <Link href="/admin" className={`admin-nav-link ${pathname === '/admin' ? 'active' : ''}`}>
                     <LayoutGrid size={18} /> Dashboard
                 </Link>
@@ -48,16 +48,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Plus size={18} /> New Project
                 </Link>
 
-                <div style={{ height: '1px', background: 'var(--color-border)', margin: '1.5rem 0' }} />
+                <div className="h-px bg-border-light dark:bg-border-dark my-6" />
 
-                <Link href="/" className="admin-nav-link" style={{ color: 'var(--color-muted)' }} target="_blank">
+                <Link href="/" className="admin-nav-link text-muted-light dark:text-muted-dark" target="_blank">
                     <ExternalLink size={18} /> View Site
                 </Link>
             </nav>
             <button
                 onClick={() => signOut()}
-                className="admin-nav-link"
-                style={{ marginTop: 'auto', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}
+                className="admin-nav-link mt-auto text-red-500 border-none bg-transparent cursor-pointer"
             >
                 <LogOut size={18} /> Sign out
             </button>

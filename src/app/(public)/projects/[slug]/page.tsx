@@ -38,70 +38,37 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
   const thumbnailImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];
 
   return (
-    <article style={{ margin: '2rem', padding: 0 }}>
+    <article className="m-8 p-0">
       {/* Main Content Container */}
-      <div style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        padding: '0 2rem 4rem',
-      }}>
+      <div className="max-w-[900px] mx-auto px-8 pb-16">
         {/* Header: Title and Date/Location inline */}
-        <header
-          className="project-title-row"
-          style={{
-            marginBottom: '2rem',
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          <h1 style={{
-            margin: 0,
-            fontSize: '2.5rem',
-            lineHeight: 1.2,
-            fontWeight: 700,
-          }}>
+        <header className="project-title-row mb-8 flex items-baseline justify-between gap-4 flex-wrap">
+          <h1 className="m-0 text-[2.5rem] leading-tight font-bold">
             {project.name}
           </h1>
-          <span
-            className="project-date"
-            style={{
-              fontSize: '1rem',
-              color: 'var(--color-muted)',
-              fontFamily: 'var(--font-hand)',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <span className="project-date text-base text-muted-light dark:text-muted-dark font-hand whitespace-nowrap">
             {formattedDate}
           </span>
         </header>
 
         {/* Grid Layout: 1/3 Sidebar + 2/3 Description */}
-        <div className="project-single-grid" style={{ marginBottom: '3rem' }}>
+        <div className="project-single-grid mb-12">
           {/* Left Sidebar (1/3) */}
           <div>
             {/* Status Tag */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{
-                display: 'inline-block',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                textTransform: 'capitalize',
-                background: project.status === 'completed' ? '#dcfce7' : '#e0f2fe',
-                color: project.status === 'completed' ? '#166534' : '#0369a1',
-                border: project.status === 'completed' ? '1px solid #bbf7d0' : '1px solid #bae6fd',
-              }}>
+            <div className="mb-6">
+              <span className={`inline-block py-2 px-4 rounded-lg text-[0.9rem] font-semibold capitalize ${
+                project.status === 'completed'
+                  ? 'bg-green-100 text-green-800 border border-green-200'
+                  : 'bg-sky-100 text-sky-700 border border-sky-200'
+              }`}>
                 {project.status}
               </span>
             </div>
 
             {/* Thumbnail Image */}
             {thumbnailImage && (
-              <div style={{ marginBottom: '1.5rem' }}>
+              <div className="mb-6">
                 <ImageWithZoom
                   src={thumbnailImage.url}
                   alt={thumbnailImage.alt || project.name}
@@ -114,55 +81,24 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
             )}
 
             {/* Tech Stack Card */}
-            <div style={{
-              background: '#f8faff',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              border: '1px solid var(--color-border)',
-              marginBottom: '1.5rem',
-            }}>
-              <h3 style={{
-                margin: '0 0 1rem 0',
-                fontSize: '1.1rem',
-                fontFamily: 'var(--font-ui)',
-                fontWeight: 600,
-              }}>
+            <div className="bg-[#f8faff] p-6 rounded-xl border border-border-light dark:border-border-dark mb-6">
+              <h3 className="m-0 mb-4 text-[1.1rem] font-ui font-semibold">
                 Tech Stack
               </h3>
-              <p style={{
-                margin: 0,
-                fontSize: '0.95rem',
-                lineHeight: 1.6,
-              }}>
+              <p className="m-0 text-[0.95rem] leading-relaxed">
                 {project.stack}
               </p>
             </div>
 
             {/* View Code and Demo Buttons */}
             {(project.githubUrl || project.demoUrl) && (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-                marginBottom: '1.5rem',
-              }}>
+              <div className="flex flex-col gap-3 mb-6">
                 {project.githubUrl && (
                   <a
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      display: 'block',
-                      textAlign: 'center',
-                      padding: '0.75rem 1.5rem',
-                      background: 'var(--color-primary)',
-                      color: 'white',
-                      borderRadius: '8px',
-                      textDecoration: 'none',
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                    }}
+                    className="block text-center py-3 px-6 bg-primary text-white rounded-lg no-underline font-ui text-[0.95rem] font-medium border-none"
                   >
                     View Code
                   </a>
@@ -172,19 +108,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
                     href={project.demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      display: 'block',
-                      textAlign: 'center',
-                      padding: '0.75rem 1.5rem',
-                      background: 'white',
-                      color: 'var(--color-primary)',
-                      border: '2px solid var(--color-primary)',
-                      borderRadius: '8px',
-                      textDecoration: 'none',
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: '0.95rem',
-                      fontWeight: 500,
-                    }}
+                    className="block text-center py-3 px-6 bg-white text-primary border-2 border-primary rounded-lg no-underline font-ui text-[0.95rem] font-medium"
                   >
                     Live Demo
                   </a>
@@ -194,25 +118,11 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
 
             {/* Key Takeaways (Optional) */}
             {project.learnings && (
-              <div style={{
-                background: '#fffbf0',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                border: '1px solid #ffe8a3',
-              }}>
-                <h3 style={{
-                  margin: '0 0 0.75rem 0',
-                  fontSize: '1.1rem',
-                  fontFamily: 'var(--font-ui)',
-                  fontWeight: 600,
-                }}>
+              <div className="bg-[#fffbf0] p-6 rounded-xl border border-[#ffe8a3]">
+                <h3 className="m-0 mb-3 text-[1.1rem] font-ui font-semibold">
                   Key Takeaways
                 </h3>
-                <p style={{
-                  margin: 0,
-                  fontSize: '0.95rem',
-                  lineHeight: 1.6,
-                }}>
+                <p className="m-0 text-[0.95rem] leading-relaxed">
                   {project.learnings}
                 </p>
               </div>
@@ -222,12 +132,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
           {/* Right Content (2/3) - Description */}
           <div>
             <div
-              className="prose prose-lg"
-              style={{
-                fontSize: '1.2rem',
-                fontFamily: 'var(--font-body)',
-                lineHeight: '1.8',
-              }}
+              className="prose prose-lg text-xl font-body leading-[1.8]"
               dangerouslySetInnerHTML={{ __html: project.description }}
             />
           </div>
@@ -235,19 +140,12 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
 
         {/* Demo Video */}
         {project.demoVideoUrl && (
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Demo Video</h2>
-            <div style={{
-              position: 'relative',
-              paddingBottom: '56.25%',
-              height: 0,
-              overflow: 'hidden',
-              borderRadius: '12px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-            }}>
+          <div className="mb-12">
+            <h2 className="text-2xl mb-4">Demo Video</h2>
+            <div className="relative pb-[56.25%] h-0 overflow-hidden rounded-xl shadow-md">
               <iframe
                 src={project.demoVideoUrl.replace('watch?v=', 'embed/')}
-                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                className="absolute top-0 left-0 w-full h-full border-none"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -257,8 +155,8 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
 
         {/* Project Gallery */}
         {project.images && project.images.filter(img => img.id !== thumbnailImage?.id).length > 0 && (
-          <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Project Gallery</h2>
+          <div className="mb-12">
+            <h2 className="text-2xl mb-4">Project Gallery</h2>
             <div className="project-gallery">
               {project.images
                 .filter(img => img.id !== thumbnailImage?.id)
@@ -278,21 +176,10 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
         )}
 
         {/* Footer */}
-        <div style={{
-          borderTop: '1px solid var(--color-border)',
-          boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.03)',
-          paddingTop: '2rem',
-          marginTop: '4rem',
-        }}>
+        <div className="border-t border-border-light dark:border-border-dark shadow-[0_-2px_8px_rgba(0,0,0,0.03)] pt-8 mt-16">
           <Link
             href="/projects"
-            style={{
-              color: 'var(--color-muted)',
-              border: 'none',
-              textDecoration: 'none',
-              fontFamily: 'var(--font-ui)',
-              fontSize: '0.95rem',
-            }}
+            className="text-muted-light dark:text-muted-dark border-none no-underline font-ui text-[0.95rem] hover:text-primary"
           >
             ← Back to Projects
           </Link>

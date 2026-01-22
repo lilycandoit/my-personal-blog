@@ -23,89 +23,71 @@ export default async function AdminDashboard() {
   const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '3rem' }}>
-        <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: 800 }}>Welcome back, Lily.</h1>
-        <p style={{ color: 'var(--color-muted)', fontSize: '1.1rem', marginTop: '0.5rem' }}>It's a good day to think and build.</p>
+    <div className="max-w-[900px] mx-auto">
+      <header className="mb-12">
+        <h1 className="m-0 text-[2.5rem] font-extrabold">Welcome back, Lily.</h1>
+        <p className="text-muted-light dark:text-muted-dark text-lg mt-2">It's a good day to think and build.</p>
       </header>
 
       {/* Writing Prompt Card */}
-      <div className="admin-card" style={{
-        marginBottom: '3rem',
-        background: 'linear-gradient(135deg, #f8faff 0%, #eef4fc 100%)',
-        border: '1px solid var(--color-secondary)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.5rem',
-        padding: '2rem'
-      }}>
-        <div style={{
-          background: 'white',
-          width: '48px',
-          height: '48px',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--color-primary)',
-          boxShadow: '0 4px 12px rgba(93, 156, 236, 0.15)'
-        }}>
+      <div className="admin-card mb-12 bg-gradient-to-br from-[#f8faff] to-[#eef4fc] border border-secondary flex items-center gap-6 p-8">
+        <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center text-primary shadow-[0_4px_12px_rgba(93,156,236,0.15)]">
           <PenLine size={24} />
         </div>
-        <div style={{ flex: 1 }}>
-          <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Daily Writing Prompt</h3>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '1.2rem', fontWeight: 500, color: 'var(--color-text)' }}>"{randomPrompt}"</p>
+        <div className="flex-1">
+          <h3 className="m-0 text-[0.9rem] text-primary uppercase tracking-wider">Daily Writing Prompt</h3>
+          <p className="mt-1 mb-0 text-xl font-medium text-text-light dark:text-text-dark">&ldquo;{randomPrompt}&rdquo;</p>
         </div>
-        <Link href="/admin/posts/new" className="primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.75rem 1.5rem' }}>
+        <Link href="/admin/posts/new" className="primary flex items-center gap-2 py-3 px-6">
           <Plus size={18} /> Start Writing
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-        <Link href="/admin/posts" style={{ textDecoration: 'none', border: 'none' }}>
-          <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-            <div style={{ padding: '0.75rem', background: 'rgba(93, 156, 236, 0.1)', borderRadius: '10px', color: 'var(--color-primary)' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-12">
+        <Link href="/admin/posts" className="no-underline border-none">
+          <div className="admin-card flex items-center gap-4 cursor-pointer transition-all duration-200">
+            <div className="p-3 bg-primary/10 rounded-[10px] text-primary">
               <FileText size={20} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Total Posts</h3>
-              <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{postCount}</p>
+              <h3 className="m-0 text-[0.85rem] text-muted-light dark:text-muted-dark">Total Posts</h3>
+              <p className="m-0 text-2xl font-bold">{postCount}</p>
             </div>
           </div>
         </Link>
-        <Link href="/admin/projects" style={{ textDecoration: 'none', border: 'none' }}>
-          <div className="admin-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', transition: 'all 0.2s' }}>
-            <div style={{ padding: '0.75rem', background: 'rgba(160, 210, 235, 0.1)', borderRadius: '10px', color: 'var(--color-secondary)' }}>
+        <Link href="/admin/projects" className="no-underline border-none">
+          <div className="admin-card flex items-center gap-4 cursor-pointer transition-all duration-200">
+            <div className="p-3 bg-secondary/10 rounded-[10px] text-secondary">
               <LayoutGrid size={20} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--color-muted)' }}>Active Projects</h3>
-              <p style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>{projectCount}</p>
+              <h3 className="m-0 text-[0.85rem] text-muted-light dark:text-muted-dark">Active Projects</h3>
+              <p className="m-0 text-2xl font-bold">{projectCount}</p>
             </div>
           </div>
         </Link>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1rem' }}>
-        <h2 style={{ margin: 0 }}>Recent Posts</h2>
-        <Link href="/posts" style={{ fontSize: '0.9rem', color: 'var(--color-primary)', border: 'none' }}>View all &rarr;</Link>
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="m-0">Recent Posts</h2>
+        <Link href="/posts" className="text-[0.9rem] text-primary border-none">View all &rarr;</Link>
       </div>
 
-      <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="admin-card p-0 overflow-hidden">
         {recentPosts.length === 0 ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-muted)' }}>
+            <div className="p-12 text-center text-muted-light dark:text-muted-dark">
               No thoughts shared yet.
               <br/>
-              <Link href="/admin/posts/new" style={{ color: 'var(--color-primary)', display: 'inline-block', marginTop: '1rem' }}>Write your first post</Link>
+              <Link href="/admin/posts/new" className="text-primary inline-block mt-4">Write your first post</Link>
             </div>
         ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ background: '#fcfdfe', borderBottom: '1px solid var(--color-border)' }}>
+            <table className="w-full border-collapse">
+            <thead className="bg-[#fcfdfe] border-b border-border-light dark:border-border-dark">
                 <tr>
-                <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>TITLE</th>
-                <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>CATEGORY</th>
-                <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>DATE</th>
-                <th style={{ padding: '1rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>ACTIONS</th>
+                <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">TITLE</th>
+                <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">CATEGORY</th>
+                <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">DATE</th>
+                <th className="py-4 px-6 text-center text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">ACTIONS</th>
                 </tr>
             </thead>
             <tbody>
@@ -116,38 +98,27 @@ export default async function AdminDashboard() {
                   const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
 
                   return (
-                    <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>
-                      <td style={{ padding: '1.25rem 1.5rem', fontWeight: 500 }}>
-                        <Link href={`/posts/${post.slug}`} style={{ border: 'none' }}>{post.title}</Link>
+                    <tr key={post.id} className="admin-table-row border-b border-[#f8faff] transition-colors duration-200">
+                      <td className="py-5 px-6 font-medium">
+                        <Link href={`/posts/${post.slug}`} className="border-none">{post.title}</Link>
                       </td>
-                      <td style={{ padding: '1.25rem 1.5rem' }}>
+                      <td className="py-5 px-6">
                           <span className="tag">{post.category}</span>
                       </td>
-                      <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <td className="py-5 px-6 text-[0.9rem] text-muted-light dark:text-muted-dark">
+                        <div className="flex flex-col gap-1">
                           <span>{formattedDate}</span>
                           {wasEdited && (
-                            <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>
+                            <span className="text-xs text-primary">
                               (Updated)
                             </span>
                           )}
                         </div>
                       </td>
-                      <td style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
+                      <td className="py-5 px-6 text-center">
                         <Link
                           href={`/admin/posts/${post.id}/edit`}
-                          style={{
-                            border: 'none',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '6px',
-                            background: 'rgba(93, 156, 236, 0.1)',
-                            color: 'var(--color-primary)',
-                            fontSize: '0.85rem',
-                            transition: 'all 0.2s'
-                          }}
+                          className="border-none inline-flex items-center gap-2 py-2 px-3 rounded-md bg-primary/10 text-primary text-[0.85rem] transition-all duration-200"
                         >
                           <Edit size={14} /> Edit
                         </Link>

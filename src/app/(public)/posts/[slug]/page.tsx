@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/prisma';
 import { formatDate } from '@/lib/utils';
+import { getPostBySlug, getPublicPostSlugs } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,29 +9,20 @@ export const revalidate = 3600;
 
 // Pre-generate pages for all existing posts at build time
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: { visibility: 'public' },
-    select: { slug: true },
-  });
-  return posts.map((post) => ({ slug: post.slug }));
+  const slugs = await getPublicPostSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const post = await prisma.post.findUnique({ where: { slug }});
-    if (!post) return {};
-    return { title: post.title };
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  if (!post) return {};
+  return { title: post.title };
 }
 
 export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = await prisma.post.findUnique({
-      where: { slug },
-      include: {
-        images: true,
-      },
-  });
-
+  const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
@@ -52,72 +43,48 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
   const imageAlt = coverImage?.alt || post.title;
 
   return (
-    <article style={{ margin: '2rem', padding: 0}}>
+    <article className="m-8 p-0">
       {/* Main Content Container */}
-      <div style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        padding: '0 2rem 4rem',
-      }}>
+      <div className="max-w-[900px] mx-auto px-8 pb-16">
         {/* Header with Title First, Then Meta */}
-        <header style={{ marginBottom: '2rem' }}>
-          <h1 style={{
-            margin: '0',
-            fontSize: '2.5rem',
-            lineHeight: 1.2,
-            fontWeight: 700,
-          }}>
+        <header className="mb-8">
+          <h1 className="m-0 text-[2.5rem] leading-tight font-bold">
             {post.title}
           </h1>
-          <div className="meta" style={{ fontSize: '1rem' }}>
+          <div className="text-base">
             <span className="date">
               {formattedDate}
-              {wasEdited && <span style={{ fontSize: '0.85rem', color: 'var(--color-primary)', marginLeft: '0.5rem' }}>(Updated)</span>}
+              {wasEdited && (
+                <span className="text-sm text-primary ml-2">(Updated)</span>
+              )}
             </span>
-            <span style={{ margin: '0 0.5rem', color: 'var(--color-border)' }}>|</span>
+            <span className="mx-2 text-border-light dark:text-border-dark">|</span>
             <span className="tag">{post.category}</span>
           </div>
         </header>
 
-        {/* Cover Image - Full Width (always show) */}
-        <div style={{ marginBottom: '2rem' }}>
+        {/* Cover Image - Full Width */}
+        <div className="mb-8">
           <Image
             src={imageUrl}
             alt={imageAlt}
             width={coverImage?.width || 1200}
             height={coverImage?.height || 600}
-            style={{
-              width: '100%',
-              height: 'auto',
-              maxHeight: '500px',
-              objectFit: 'cover',
-              objectPosition: 'bottom center',
-              borderRadius: '16px',
-            }}
+            className="w-full h-auto max-h-[500px] object-cover object-bottom rounded-2xl"
             sizes="(max-width: 768px) 100vw, 900px"
           />
         </div>
 
-
         {/* Render HTML content from Editor */}
         <div
-          className="content prose prose-lg max-w-none"
-          style={{
-            fontSize: '1.2rem',
-            fontFamily: 'var(--font-body)',
-            lineHeight: '1.8',
-          }}
+          className="content prose prose-lg max-w-none text-xl font-hand leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
         {/* Additional Images Gallery */}
         {post.images && post.images.filter(img => img.id !== post.coverImageId).length > 0 && (
-          <div style={{ marginTop: '3rem' }}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1.5rem',
-            }}>
+          <div className="mt-12">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
               {post.images
                 .filter(img => img.id !== post.coverImageId)
                 .map((image) => (
@@ -127,12 +94,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
                     alt={image.alt || image.filename}
                     width={image.width || 400}
                     height={image.height || 300}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      borderRadius: '12px',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    }}
+                    className="w-full h-auto rounded-xl shadow-md"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 ))}
@@ -141,21 +103,10 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         )}
 
         {/* Footer */}
-        <div style={{
-          borderTop: '1px solid var(--color-border)',
-          boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.03)',
-          paddingTop: '2rem',
-          marginTop: '4rem',
-        }}>
+        <div className="border-t border-border-light dark:border-border-dark shadow-[0_-2px_8px_rgba(0,0,0,0.03)] pt-8 mt-16">
           <Link
             href="/posts"
-            style={{
-              color: 'var(--color-muted)',
-              border: 'none',
-              textDecoration: 'none',
-              fontFamily: 'var(--font-ui)',
-              fontSize: '0.95rem',
-            }}
+            className="text-muted-light dark:text-muted-dark border-none no-underline font-ui text-[0.95rem] hover:text-primary"
           >
             ← Back to Posts
           </Link>

@@ -37,22 +37,22 @@ export default function PostsTable({ initialPosts }: PostsTableProps) {
 
   if (posts.length === 0) {
     return (
-      <div className="admin-card" style={{ textAlign: 'center', padding: '3rem' }}>
-        <p style={{ color: 'var(--color-muted)', marginBottom: '1rem' }}>No posts yet.</p>
+      <div className="admin-card text-center p-12">
+        <p className="text-muted-light dark:text-muted-dark mb-4">No posts yet.</p>
         <Link href="/admin/posts/new" className="primary">Create your first post</Link>
       </div>
     );
   }
 
   return (
-    <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead style={{ background: '#fcfdfe', borderBottom: '1px solid var(--color-border)' }}>
+    <div className="admin-card p-0 overflow-hidden">
+      <table className="w-full border-collapse">
+        <thead className="bg-[#fcfdfe] border-b border-border-light dark:border-border-dark">
           <tr>
-            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>TITLE</th>
-            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>CATEGORY</th>
-            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>DATE</th>
-            <th style={{ padding: '1rem 1.5rem', textAlign: 'center', fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 600 }}>ACTIONS</th>
+            <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">TITLE</th>
+            <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">CATEGORY</th>
+            <th className="py-4 px-6 text-left text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">DATE</th>
+            <th className="py-4 px-6 text-center text-[0.85rem] text-muted-light dark:text-muted-dark font-semibold">ACTIONS</th>
           </tr>
         </thead>
         <tbody>
@@ -62,57 +62,34 @@ export default function PostsTable({ initialPosts }: PostsTableProps) {
             const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
 
             return (
-              <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>
-                <td style={{ padding: '1.25rem 1.5rem', fontWeight: 500 }}>
-                  <Link href={`/posts/${post.slug}`} style={{ border: 'none' }} target="_blank">{post.title}</Link>
+              <tr key={post.id} className="admin-table-row border-b border-[#f8faff] transition-colors duration-200">
+                <td className="py-5 px-6 font-medium">
+                  <Link href={`/posts/${post.slug}`} className="border-none" target="_blank">{post.title}</Link>
                 </td>
-                <td style={{ padding: '1.25rem 1.5rem' }}>
+                <td className="py-5 px-6">
                   <span className="tag">{post.category}</span>
                 </td>
-                <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <td className="py-5 px-6 text-[0.9rem] text-muted-light dark:text-muted-dark">
+                  <div className="flex flex-col gap-1">
                     <span>{formattedDate}</span>
                     {wasEdited && (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--color-primary)' }}>
+                      <span className="text-xs text-primary">
                         (Updated)
                       </span>
                     )}
                   </div>
                 </td>
-                <td style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                <td className="py-5 px-6 text-center">
+                  <div className="flex gap-2 justify-center">
                     <Link
                       href={`/admin/posts/${post.id}/edit`}
-                      style={{
-                        border: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 0.75rem',
-                        borderRadius: '6px',
-                        background: 'rgba(93, 156, 236, 0.1)',
-                        color: 'var(--color-primary)',
-                        fontSize: '0.85rem',
-                        transition: 'all 0.2s'
-                      }}
+                      className="border-none inline-flex items-center gap-2 py-2 px-3 rounded-md bg-primary/10 text-primary text-[0.85rem] transition-all duration-200"
                     >
                       <Edit size={14} /> Edit
                     </Link>
                     <button
                       onClick={() => handleDelete(post.id, post.title)}
-                      style={{
-                        border: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        padding: '0.5rem 0.75rem',
-                        borderRadius: '6px',
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#dc2626',
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
+                      className="border-none inline-flex items-center gap-2 py-2 px-3 rounded-md bg-red-500/10 text-red-600 text-[0.85rem] cursor-pointer transition-all duration-200"
                     >
                       <Trash2 size={14} /> Delete
                     </button>
