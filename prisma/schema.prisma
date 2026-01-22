@@ -25,6 +25,8 @@ model Post {
   visibility   String   @default("public") // public, unlisted, draft
   coverImageId String?
   images       Image[]
+  timezone     String   @default("Australia/Sydney")
+  location     String   @default("Sydney")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -50,6 +52,8 @@ model Project {
   builtDate    DateTime? // When project was actually built
   coverImageId String?
   images       Image[]
+  timezone     String   @default("Australia/Sydney")
+  location     String   @default("Sydney")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

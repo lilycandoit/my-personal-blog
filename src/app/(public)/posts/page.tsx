@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
+import { formatDate } from '@/lib/utils';
 import DailyQuote from '@/components/DailyQuote';
 
 // Revalidate every 1 hour - pages are cached and served from CDN
@@ -47,15 +48,7 @@ export default async function PostsPage() {
 
             const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
             const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
-
-            const formattedDate = new Intl.DateTimeFormat('en-GB', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZoneName: 'short'
-            }).format(dateToShow);
+            const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
 
             return (
               <Link

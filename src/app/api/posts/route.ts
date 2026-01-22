@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { slugify } from '@/lib/utils';
 import { sanitizeText } from '@/lib/sanitize';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { DEFAULT_TIMEZONE, DEFAULT_LOCATION } from '@/lib/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,6 +60,8 @@ export async function POST(req: Request) {
         featured,
         slug: slug || slugify(sanitizedTitle),
         coverImageId: coverImageId || null,
+        timezone: DEFAULT_TIMEZONE,
+        location: DEFAULT_LOCATION,
         images: {
           connect: imageIds?.map(id => ({ id })) || [],
         },

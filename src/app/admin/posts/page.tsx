@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Edit, Trash2, Plus } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 
 interface Post {
   id: string;
@@ -10,6 +11,8 @@ interface Post {
   createdAt: string;
   updatedAt: string;
   slug: string;
+  timezone: string;
+  location: string;
 }
 
 export default function AdminPostsPage() {
@@ -83,15 +86,7 @@ export default function AdminPostsPage() {
               {posts.map(post => {
                 const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
                 const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
-
-                const formattedDate = new Intl.DateTimeFormat('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short'
-                }).format(dateToShow);
+                const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
 
                 return (
                   <tr key={post.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>

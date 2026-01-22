@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
+import { formatDate } from '@/lib/utils';
 import Hero from '@/components/Hero';
 import DailyQuote from '@/components/DailyQuote';
 import KindReminder from '@/components/KindReminder';
@@ -34,22 +35,12 @@ export default async function Home() {
     .filter(p => !latestPostIds.has(p.id))
     .slice(0, 3);
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    }).format(date);
-  };
-
   const getPostMeta = (post: any) => {
     const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
     const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
     const coverImage = post.coverImageId ? post.images.find((img: any) => img.id === post.coverImageId) : null;
-    return { dateToShow, coverImage, wasEdited };
+    const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
+    return { dateToShow, coverImage, wasEdited, formattedDate };
   };
 
   const [latestBig, ...latestCompact] = latestPosts;
@@ -80,7 +71,7 @@ export default async function Home() {
             </div>
 
             {latestBig && (() => {
-              const { dateToShow, coverImage, wasEdited } = getPostMeta(latestBig);
+              const { coverImage, wasEdited, formattedDate } = getPostMeta(latestBig);
               const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
               return (
                 <Link
@@ -107,7 +98,7 @@ export default async function Home() {
                           </span>
                         )}
                         <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
-                          {formatDate(dateToShow)}
+                          {formattedDate}
                           {wasEdited && (
                             <span className="text-xs text-primary ml-2">
                               (Updated)
@@ -130,7 +121,7 @@ export default async function Home() {
             {/* Compact Latest Posts */}
             <div className="flex flex-col gap-6">
               {latestCompact.map((post) => {
-                const { dateToShow, coverImage, wasEdited } = getPostMeta(post);
+                const { coverImage, wasEdited, formattedDate } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link
@@ -158,7 +149,7 @@ export default async function Home() {
                             </span>
                           )}
                           <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
-                            {formatDate(dateToShow)}
+                            {formattedDate}
                             {wasEdited && (
                               <span className="text-xs text-primary ml-2">
                                 (Updated)
@@ -191,7 +182,7 @@ export default async function Home() {
 
             <div className="flex flex-col gap-8">
               {featuredPosts.map((post) => {
-                const { dateToShow, coverImage, wasEdited } = getPostMeta(post);
+                const { coverImage, wasEdited, formattedDate } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link
@@ -221,7 +212,7 @@ export default async function Home() {
                           <span dangerouslySetInnerHTML={{ __html: post.content.replace(/<[^>]*>/g, '').slice(0, 120) + '...' }} />
                         </p>
                         <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
-                          {formatDate(dateToShow)}
+                          {formattedDate}
                           {wasEdited && (
                             <span className="text-xs text-primary ml-2">
                               (Updated)

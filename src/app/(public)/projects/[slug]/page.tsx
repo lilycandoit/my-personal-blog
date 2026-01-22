@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { formatDate } from '@/lib/utils';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,10 +40,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
 
   // Format date (Month Year only)
   const dateToShow = project.builtDate ? new Date(project.builtDate) : new Date(project.createdAt);
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    year: 'numeric',
-  }).format(dateToShow);
+  const formattedDate = formatDate(dateToShow, project.timezone, project.location, 'month-year');
 
   // Get thumbnail image (cover or first image)
   const thumbnailImage = project.images?.find(img => img.id === project.coverImageId) || project.images?.[0];

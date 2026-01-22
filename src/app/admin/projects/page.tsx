@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Edit, Trash2, Plus } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 
 interface Project {
   id: string;
@@ -11,6 +12,8 @@ interface Project {
   createdAt: string;
   updatedAt: string;
   slug: string;
+  timezone: string;
+  location: string;
 }
 
 export default function AdminProjectsPage() {
@@ -85,15 +88,7 @@ export default function AdminProjectsPage() {
               {projects.map(project => {
                 const wasEdited = new Date(project.updatedAt).getTime() !== new Date(project.createdAt).getTime();
                 const dateToShow = wasEdited ? new Date(project.updatedAt) : new Date(project.createdAt);
-
-                const formattedDate = new Intl.DateTimeFormat('en-GB', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  timeZoneName: 'short'
-                }).format(dateToShow);
+                const formattedDate = formatDate(dateToShow, project.timezone, project.location, 'full');
 
                 return (
                   <tr key={project.id} className="admin-table-row" style={{ borderBottom: '1px solid #f8faff', transition: 'background 0.2s' }}>

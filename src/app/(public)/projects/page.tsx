@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
+import { formatDate } from '@/lib/utils';
 import DailyQuote from '@/components/DailyQuote';
 
 // Revalidate every 1 hour - pages are cached and served from CDN
@@ -56,10 +57,7 @@ export default async function ProjectsPage() {
             const excerpt = getExcerpt(project.description);
 
             const displayDate = new Date(project.builtDate || project.createdAt);
-            const formattedDate = new Intl.DateTimeFormat('en-US', {
-              month: 'short',
-              year: 'numeric'
-            }).format(displayDate);
+            const formattedDate = formatDate(displayDate, project.timezone, project.location, 'month-year');
 
             return (
               <Link
