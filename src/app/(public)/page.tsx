@@ -38,7 +38,8 @@ export default async function Home() {
   const getPostMeta = (post: any) => {
     const wasEdited = new Date(post.updatedAt).getTime() !== new Date(post.createdAt).getTime();
     const dateToShow = wasEdited ? new Date(post.updatedAt) : new Date(post.createdAt);
-    const coverImage = post.coverImageId ? post.images.find((img: any) => img.id === post.coverImageId) : null;
+    // Use coverImageId if set, otherwise fall back to first image
+    const coverImage = post.images?.find((img: any) => img.id === post.coverImageId) || post.images?.[0] || null;
     const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
     return { dateToShow, coverImage, wasEdited, formattedDate };
   };

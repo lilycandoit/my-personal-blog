@@ -70,7 +70,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             alt={imageAlt}
             width={coverImage?.width || 1200}
             height={coverImage?.height || 600}
-            className="w-full h-auto max-h-[500px] object-cover object-bottom rounded-2xl"
+            className="w-full h-auto max-h-[500px] object-contain rounded-2xl"
             sizes="(max-width: 768px) 100vw, 900px"
           />
         </div>
