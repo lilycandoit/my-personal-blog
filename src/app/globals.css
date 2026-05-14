@@ -255,8 +255,43 @@
 
 
 /* TipTap Editor Styles */
+.editor-wrapper {
+  @apply overflow-hidden rounded-xl border border-border-light bg-white;
+}
+
+.editor-toolbar {
+  @apply flex flex-wrap items-center gap-1 border-b border-border-light bg-white p-2;
+}
+
+.editor-toolbar-button {
+  @apply flex h-8 w-8 items-center justify-center rounded-md border-0 bg-transparent p-0;
+  @apply text-gray-700 transition-colors duration-150 hover:bg-primary/10 hover:text-primary;
+  @apply disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+.editor-toolbar-button.is-active {
+  @apply bg-primary text-white hover:bg-primary-hover hover:text-white;
+}
+
+.editor-toolbar-divider {
+  @apply mx-1 h-6 w-px bg-border-light;
+}
+
+.editor-toolbar-spacer {
+  @apply flex-1;
+}
+
+.editor-style-select {
+  @apply h-8 w-auto rounded-md border border-border-light bg-white px-2 py-0;
+  @apply font-ui text-sm text-gray-700 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+}
+
 .tiptap {
   @apply outline-none min-h-[300px] font-hand text-lg p-6;
+}
+
+.tiptap:focus {
+  @apply outline-none;
 }
 
 .tiptap p {
@@ -274,6 +309,14 @@
   @apply pl-6 mb-4;
 }
 
+.tiptap ul {
+  @apply list-disc;
+}
+
+.tiptap ol {
+  @apply list-decimal;
+}
+
 .tiptap blockquote {
   @apply border-l-4 border-secondary-light dark:border-secondary-dark pl-6 my-6;
   @apply text-muted-light dark:text-muted-dark italic;
@@ -283,25 +326,41 @@
   @apply text-primary underline underline-offset-4;
 }
 
+.tiptap strong,
+.content strong,
+.prose strong {
+  @apply text-inherit;
+}
+
+.tiptap em,
+.content em,
+.prose em {
+  @apply text-inherit;
+}
+
 .tiptap img {
-  @apply max-w-full rounded-xl h-auto my-8;
+  @apply block max-w-full rounded-xl h-auto my-8;
 }
 
 /* Task List Styles */
 .tiptap ul[data-type="taskList"] {
-  @apply list-none p-0;
+  @apply list-none p-0 mb-4;
 }
 
 .tiptap ul[data-type="taskList"] li {
-  @apply flex items-start mb-2;
+  @apply flex items-start gap-2 mb-2;
 }
 
 .tiptap ul[data-type="taskList"] li > label {
-  @apply flex-none select-none mr-2 mt-1;
+  @apply flex-none select-none mt-1;
 }
 
 .tiptap ul[data-type="taskList"] li > div {
   @apply flex-1;
+}
+
+.tiptap ul[data-type="taskList"] li > div > p {
+  @apply m-0;
 }
 
 .tiptap ul[data-type="taskList"] input[type="checkbox"] {
@@ -310,6 +369,68 @@
 
 .editor-wrapper:focus-within {
   @apply border-primary ring-4 ring-primary/10;
+}
+
+.content img,
+.prose img {
+  @apply block max-w-full h-auto rounded-xl my-8;
+}
+
+.content ul[data-type="taskList"],
+.prose ul[data-type="taskList"] {
+  @apply list-none p-0;
+}
+
+.content ul[data-type="taskList"] li,
+.prose ul[data-type="taskList"] li {
+  @apply flex items-start gap-2;
+}
+
+.content ul[data-type="taskList"] li > label,
+.prose ul[data-type="taskList"] li > label {
+  @apply flex-none mt-1;
+}
+
+.content ul[data-type="taskList"] li > div > p,
+.prose ul[data-type="taskList"] li > div > p {
+  @apply m-0;
+}
+
+/* Admin post preview */
+.post-preview-modal {
+  @apply fixed inset-0 z-[9999];
+}
+
+.post-preview-backdrop {
+  @apply absolute inset-0 bg-black/60;
+}
+
+.post-preview-panel {
+  @apply absolute left-1/2 top-1/2 flex max-h-[92vh] w-[min(960px,92vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl bg-white shadow-2xl;
+}
+
+.post-preview-toolbar {
+  @apply flex items-center justify-between gap-4 border-b border-border-light bg-white px-6 py-4;
+}
+
+.post-preview-eyebrow {
+  @apply m-0 font-ui text-xs font-semibold uppercase tracking-wider text-muted-light;
+}
+
+.post-preview-toolbar-title {
+  @apply m-0 font-ui text-lg font-semibold text-gray-900;
+}
+
+.post-preview-close {
+  @apply flex h-9 w-9 items-center justify-center rounded-lg border-0 bg-gray-100 p-0 text-gray-700 transition-colors hover:bg-primary/10 hover:text-primary;
+}
+
+.post-preview-scroll {
+  @apply overflow-y-auto bg-background-light px-4 py-8;
+}
+
+.post-preview-article {
+  @apply mx-auto max-w-[900px] rounded-2xl bg-white px-8 py-10 shadow-sm;
 }
 
 /* Project Gallery */

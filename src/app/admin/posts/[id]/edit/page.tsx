@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
+import PostPreviewModal from '@/components/admin/PostPreviewModal';
 
 interface UploadedImage {
   id: string;
@@ -25,6 +26,7 @@ export default function EditPost() {
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const router = useRouter();
 
   // Fetch existing post data
@@ -197,6 +199,23 @@ export default function EditPost() {
                 Cancel
             </button>
             <button
+                type="button"
+                onClick={() => {
+                  window.setTimeout(() => setPreviewOpen(true), 0);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#f1f5f9',
+                  color: '#334155',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+            >
+                Preview
+            </button>
+            <button
                 type="submit"
                 disabled={loading}
                 className="primary"
@@ -206,6 +225,17 @@ export default function EditPost() {
             </button>
         </div>
       </form>
+
+      {previewOpen && (
+        <PostPreviewModal
+          title={title}
+          category={category}
+          content={content}
+          images={images}
+          coverImageId={coverImageId}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 }

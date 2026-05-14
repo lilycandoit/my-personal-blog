@@ -54,4 +54,5 @@ prisma/dev.db-journal
 GEMINI.md
 CLAUDE.md
 plan-mode/
+.planning/
 
