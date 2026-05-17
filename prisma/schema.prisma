@@ -64,7 +64,7 @@ model Project {
 
 model Image {
   id        String   @id @default(cuid())
-  url       String   // Vercel Blob URL
+  url       String   // Cloudinary image URL
   filename  String   // Original filename
   size      Int      // File size in bytes
   mimeType  String   // image/jpeg, image/png, etc.

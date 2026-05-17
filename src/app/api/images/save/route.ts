@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { url, filename, size, mimeType, width, height, publicId } = body;
+    const { url, filename, size, mimeType, width, height } = body;
 
     // Validate required fields
     if (!url || !filename) {

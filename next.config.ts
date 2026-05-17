@@ -5,10 +5,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.public.blob.vercel-storage.com', // Keep for existing Blob images
-      },
-      {
-        protocol: 'https',
         hostname: 'res.cloudinary.com', // Cloudinary CDN
       },
     ],

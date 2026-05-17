@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { del } from '@vercel/blob';
 import { v2 as cloudinary } from 'cloudinary';
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -17,7 +17,7 @@ export async function DELETE(
 ) {
   try {
     // Check authentication
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -39,9 +39,8 @@ export async function DELETE(
       );
     }
 
-    // Detect source and delete accordingly
+    // Delete Cloudinary object when the URL belongs to the current storage provider.
     const isCloudinary = image.url.includes('res.cloudinary.com');
-    const isBlob = image.url.includes('blob.vercel-storage.com');
 
     try {
       if (isCloudinary) {
@@ -58,10 +57,6 @@ export async function DELETE(
           await cloudinary.uploader.destroy(publicId);
           console.log(`Deleted from Cloudinary: ${publicId}`);
         }
-      } else if (isBlob) {
-        // Delete from Vercel Blob
-        await del(image.url);
-        console.log(`Deleted from Blob: ${image.url}`);
       } else {
         console.warn(`Unknown image source: ${image.url}`);
       }

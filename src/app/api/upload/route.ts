@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { v2 as cloudinary } from 'cloudinary';
 import sharp from 'sharp';
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check authentication
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },

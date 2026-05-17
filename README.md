@@ -10,7 +10,7 @@ Designed as a scalable personal platform for writing, learning logs, and portfol
 
 * **Admin CMS** – Secure dashboard to create and manage posts & projects
 * **Rich Text Editor** – TipTap with images, links, and formatting
-* **Image Uploads** – Drag & drop uploads via Vercel Blob
+* **Image Uploads** – Drag & drop uploads via Cloudinary
 * **Cover Images & Galleries** – Automatic or manual selection
 * **Client-side Search** – Fast fuzzy search with Fuse.js
 * **Responsive UI** – Clean layout with custom CSS variables
@@ -35,7 +35,7 @@ Designed as a scalable personal platform for writing, learning logs, and portfol
 
 * Node.js 18+
 * PostgreSQL database (Neon recommended)
-* Vercel account (for Blob storage)
+* Cloudinary account with an unsigned upload preset for browser uploads
 
 ### Setup
 
@@ -52,7 +52,11 @@ Set environment variables:
 DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="openssl rand -base64 32"
 NEXTAUTH_URL="http://localhost:3000"
-BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your_unsigned_upload_preset"
 ```
 
 Run migrations and seed admin user:
@@ -88,7 +92,8 @@ Visit [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 * Multiple image uploads per post/project
 * Automatic dimension extraction
 * Cover image selection
-* Optimized delivery via Vercel Blob
+* Inline editor images can be inserted at the current cursor position
+* Optimized delivery via Cloudinary
 
 ---
 
@@ -97,6 +102,7 @@ Visit [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 * Passwords hashed with bcrypt
 * Environment-based secrets
 * Separate dev & production databases recommended
+* Rich text HTML is written only through authenticated admin APIs and rendered on public pages; keep sanitization policy under review before accepting untrusted authors
 
 ---
 
@@ -109,4 +115,3 @@ Deploys automatically on Vercel connected with DB hosted on Neon.
 ## 📄 License
 
 MIT
-
