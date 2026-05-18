@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
 import PostPreviewModal from '@/components/admin/PostPreviewModal';
@@ -21,12 +23,14 @@ export default function EditPost() {
   const [category, setCategory] = useState('Learning');
   const [visibility, setVisibility] = useState('public');
   const [content, setContent] = useState('');
+  const [slug, setSlug] = useState('');
   const [featured, setFeatured] = useState(false);
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const router = useRouter();
 
   // Fetch existing post data
@@ -41,6 +45,7 @@ export default function EditPost() {
         setCategory(post.category);
         setVisibility(post.visibility || 'public');
         setContent(post.content);
+        setSlug(post.slug || '');
         setFeatured(post.featured || false);
         setImages(post.images || []);
         setCoverImageId(post.coverImageId || '');
@@ -86,6 +91,21 @@ export default function EditPost() {
       alert('Error updating post');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const canSharePublicLink = visibility !== 'draft' && slug;
+  const sharePath = canSharePublicLink ? `/posts/${slug}` : '';
+  const copyShareLink = async () => {
+    if (!sharePath) return;
+
+    const shareUrl = `${window.location.origin}${sharePath}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      window.setTimeout(() => setLinkCopied(false), 1800);
+    } catch {
+      window.prompt('Copy post link', shareUrl);
     }
   };
 
@@ -135,6 +155,74 @@ export default function EditPost() {
                 <option value="unlisted">Unlisted (accessible via link only)</option>
                 <option value="draft">Draft (only visible in admin)</option>
             </select>
+            {canSharePublicLink ? (
+              <div
+                style={{
+                  marginTop: '0.75rem',
+                  display: 'flex',
+                  gap: '0.5rem',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <span
+                  style={{
+                    flex: '1 1 280px',
+                    padding: '0.65rem 0.75rem',
+                    border: '1px solid #dbe7f5',
+                    borderRadius: '8px',
+                    background: '#f8fbff',
+                    color: '#334155',
+                    fontSize: '0.9rem',
+                    overflowWrap: 'anywhere',
+                  }}
+                >
+                  {sharePath}
+                </span>
+                <button
+                  type="button"
+                  onClick={copyShareLink}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.65rem 0.9rem',
+                    border: '1px solid #dbe7f5',
+                    borderRadius: '8px',
+                    background: '#fff',
+                    color: '#334155',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  {linkCopied ? <Check size={16} /> : <Copy size={16} />}
+                  {linkCopied ? 'Copied' : 'Copy link'}
+                </button>
+                <Link
+                  href={sharePath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    padding: '0.65rem 0.9rem',
+                    border: '1px solid #dbe7f5',
+                    borderRadius: '8px',
+                    background: '#fff',
+                    color: '#334155',
+                    fontWeight: 600,
+                  }}
+                >
+                  <ExternalLink size={16} />
+                  Open
+                </Link>
+              </div>
+            ) : (
+              <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+                Drafts stay admin-only and do not have a public share link.
+              </p>
+            )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

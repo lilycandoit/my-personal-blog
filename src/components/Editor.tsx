@@ -18,6 +18,7 @@ import {
   Quote, Redo, Undo, AlignLeft, AlignCenter, AlignRight,
   type LucideIcon
 } from 'lucide-react';
+import { formatImageSize, prepareImageForUpload } from '@/lib/imageCompression';
 
 interface EditorProps {
   value: string;
@@ -31,15 +32,23 @@ function getImageFiles(files: FileList | File[]): File[] {
   return Array.from(files).filter((file) => file.type.startsWith('image/'));
 }
 
-async function uploadInlineImage(file: File) {
+async function prepareInlineImage(file: File) {
   if (!ALLOWED_INLINE_IMAGE_TYPES.includes(file.type)) {
     throw new Error('Only JPEG, PNG, WebP, and GIF images are allowed.');
   }
 
-  if (file.size > MAX_INLINE_IMAGE_SIZE) {
-    throw new Error('Image is too large. Maximum size is 10MB.');
+  const prepared = await prepareImageForUpload(file);
+
+  if (prepared.file.size > MAX_INLINE_IMAGE_SIZE) {
+    const size = formatImageSize(prepared.file.size);
+    const gifNote = file.type === 'image/gif' ? ' GIFs are kept original to preserve animation.' : '';
+    throw new Error(`Image is still too large after preparation (${size}). Maximum size is 10MB.${gifNote}`);
   }
 
+  return prepared;
+}
+
+async function uploadInlineImage(file: File, originalName: string) {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'blog_unsigned';
 
@@ -68,8 +77,8 @@ async function uploadInlineImage(file: File) {
 
   return {
     src: data.secure_url as string,
-    alt: file.name,
-    title: file.name,
+    alt: originalName,
+    title: originalName,
   };
 }
 
@@ -209,6 +218,7 @@ const MenuBar = ({
 export default function Editor({ value, onChange }: EditorProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const editorRef = useRef<TiptapEditor | null>(null);
   const onChangeRef = useRef(onChange);
@@ -262,13 +272,24 @@ export default function Editor({ value, onChange }: EditorProps) {
     if (!editor || editor.isDestroyed || files.length === 0) return;
 
     setUploadError(null);
+    setUploadMessage(null);
     setIsUploadingImage(true);
 
     try {
       let insertAt = position;
 
-      for (const file of files) {
-        const attrs = await uploadInlineImage(file);
+      for (const [index, file] of files.entries()) {
+        const countLabel = files.length > 1 ? ` ${index + 1} of ${files.length}` : '';
+        setUploadMessage(`Preparing image${countLabel}...`);
+        const prepared = await prepareInlineImage(file);
+
+        setUploadMessage(
+          prepared.compressed
+            ? `Uploading compressed image${countLabel} (${formatImageSize(prepared.originalSize)} to ${formatImageSize(prepared.finalSize)})...`
+            : `Uploading image${countLabel}...`
+        );
+
+        const attrs = await uploadInlineImage(prepared.file, file.name);
         const imageNode = { type: 'image', attrs };
 
         if (typeof insertAt === 'number') {
@@ -282,6 +303,7 @@ export default function Editor({ value, onChange }: EditorProps) {
       setUploadError(error instanceof Error ? error.message : 'Failed to upload image.');
     } finally {
       setIsUploadingImage(false);
+      setUploadMessage(null);
     }
   }, []);
 
@@ -374,7 +396,7 @@ export default function Editor({ value, onChange }: EditorProps) {
             fontSize: '0.9rem',
           }}
         >
-          {uploadError || 'Uploading image...'}
+          {uploadError || uploadMessage || 'Uploading image...'}
         </div>
       )}
       <EditorContent editor={editor} />
