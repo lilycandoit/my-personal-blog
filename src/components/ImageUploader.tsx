@@ -1,7 +1,8 @@
 'use client';
 import { useState, useRef, DragEvent } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Star, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { formatImageSize, prepareImageForUpload } from '@/lib/imageCompression';
 
 interface UploadedImage {
   id: string;
@@ -12,21 +13,66 @@ interface UploadedImage {
   height?: number;
 }
 
+type UploadStatus = 'queued' | 'compressing' | 'uploading' | 'saving' | 'done' | 'failed';
+
+interface UploadItem {
+  id: string;
+  name: string;
+  originalSize: number;
+  finalSize?: number;
+  previewUrl?: string;
+  status: UploadStatus;
+  message?: string;
+}
+
 interface ImageUploaderProps {
   images: UploadedImage[];
   onImagesChange: (images: UploadedImage[]) => void;
   maxImages?: number;
+  coverImageId?: string;
+  onCoverImageChange?: (imageId: string) => void;
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function makeUploadId(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}-${crypto.randomUUID()}`;
+}
+
+function statusLabel(status: UploadStatus) {
+  switch (status) {
+    case 'queued':
+      return 'Queued';
+    case 'compressing':
+      return 'Compressing';
+    case 'uploading':
+      return 'Uploading';
+    case 'saving':
+      return 'Saving';
+    case 'done':
+      return 'Done';
+    case 'failed':
+      return 'Failed';
+  }
 }
 
 export default function ImageUploader({
   images,
   onImagesChange,
-  maxImages = 10
+  maxImages = 10,
+  coverImageId = '',
+  onCoverImageChange,
 }: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isUploading = uploadItems.some((item) => !['done', 'failed'].includes(item.status));
+
+  const updateUploadItem = (id: string, updates: Partial<UploadItem>) => {
+    setUploadItems((items) => items.map((item) => (item.id === id ? { ...item, ...updates } : item)));
+  };
 
   const handleDragEnter = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -50,59 +96,67 @@ export default function ImageUploader({
     e.stopPropagation();
     setIsDragging(false);
 
-    const files = Array.from(e.dataTransfer.files);
-    handleFiles(files);
+    handleFiles(Array.from(e.dataTransfer.files));
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
-      handleFiles(files);
+      handleFiles(Array.from(e.target.files));
+      e.target.value = '';
     }
   };
 
   const handleFiles = async (files: File[]) => {
     setError(null);
 
-    // Check max images limit
-    if (images.length + files.length > maxImages) {
+    const remainingSlots = maxImages - images.length;
+    if (remainingSlots <= 0) {
       setError(`Maximum ${maxImages} images allowed`);
       return;
     }
 
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-
-    // Validate file types and sizes
-    const validFiles: File[] = [];
-    for (const file of files) {
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        setError(`${file.name} is not a valid image file`);
-        continue;
-      }
-
-      // Check file size with preview
-      if (file.size > MAX_FILE_SIZE) {
-        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-        setError(`${file.name} is too large (${fileSizeMB}MB). Maximum size is 10MB.`);
-        continue;
-      }
-
-      validFiles.push(file);
+    const selectedFiles = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      setError(`Only ${remainingSlots} more image${remainingSlots === 1 ? '' : 's'} can be added.`);
     }
 
-    if (validFiles.length === 0) return;
+    const newItems = selectedFiles.map((file) => ({
+      id: makeUploadId(file),
+      name: file.name,
+      originalSize: file.size,
+      previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+      status: 'queued' as UploadStatus,
+    }));
 
-    setUploading(true);
+    setUploadItems((items) => [...newItems, ...items.filter((item) => item.status !== 'done')]);
 
-    try {
-      // Upload files one by one directly to Cloudinary
-      const uploadedImages: UploadedImage[] = [];
+    const uploadedImages: UploadedImage[] = [];
 
-      for (const file of validFiles) {
-        // Upload directly to Cloudinary
+    for (const [index, file] of selectedFiles.entries()) {
+      const item = newItems[index];
+
+      try {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          throw new Error('Only PNG, JPG, WebP, and GIF images are supported.');
+        }
+
+        updateUploadItem(item.id, { status: 'compressing', message: 'Preparing image...' });
+        const prepared = await prepareImageForUpload(file);
+
+        if (prepared.finalSize > MAX_FILE_SIZE) {
+          throw new Error(
+            `${file.name} is still too large after compression (${formatImageSize(prepared.finalSize)}). Maximum is ${formatImageSize(MAX_FILE_SIZE)}.`
+          );
+        }
+
+        updateUploadItem(item.id, {
+          status: 'uploading',
+          finalSize: prepared.finalSize,
+          message: prepared.note || 'Uploading to Cloudinary...',
+        });
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', prepared.file);
         formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'blog_unsigned');
 
         const cloudinaryResponse = await fetch(
@@ -114,40 +168,47 @@ export default function ImageUploader({
         );
 
         if (!cloudinaryResponse.ok) {
-          throw new Error('Failed to upload to Cloudinary');
+          throw new Error('Cloudinary upload failed.');
         }
 
         const cloudinaryData = await cloudinaryResponse.json();
 
-        // Save to our database
+        updateUploadItem(item.id, { status: 'saving', message: 'Saving image...' });
+
         const dbResponse = await fetch('/api/images/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             url: cloudinaryData.secure_url,
             filename: file.name,
-            size: file.size,
-            mimeType: file.type,
+            size: prepared.finalSize,
+            mimeType: prepared.file.type,
             width: cloudinaryData.width,
             height: cloudinaryData.height,
-            publicId: cloudinaryData.public_id,
           }),
         });
 
         if (!dbResponse.ok) {
           const errorData = await dbResponse.json();
-          throw new Error(errorData.error || 'Failed to save image');
+          throw new Error(errorData.error || 'Failed to save image metadata.');
         }
 
         const data = await dbResponse.json();
         uploadedImages.push(data.image);
+        updateUploadItem(item.id, {
+          status: 'done',
+          message: prepared.compressed ? `Compressed to ${formatImageSize(prepared.finalSize)}` : 'Uploaded',
+        });
+      } catch (err) {
+        updateUploadItem(item.id, {
+          status: 'failed',
+          message: err instanceof Error ? err.message : 'Failed to upload image.',
+        });
       }
+    }
 
+    if (uploadedImages.length > 0) {
       onImagesChange([...images, ...uploadedImages]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload images');
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -161,7 +222,12 @@ export default function ImageUploader({
         throw new Error('Failed to delete image');
       }
 
-      onImagesChange(images.filter(img => img.id !== imageId));
+      const nextImages = images.filter((img) => img.id !== imageId);
+      onImagesChange(nextImages);
+
+      if (coverImageId === imageId) {
+        onCoverImageChange?.('');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete image');
     }
@@ -169,7 +235,6 @@ export default function ImageUploader({
 
   return (
     <div style={{ width: '100%' }}>
-      {/* Upload Zone */}
       <div
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
@@ -191,7 +256,7 @@ export default function ImageUploader({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleFileInput}
           style={{ display: 'none' }}
         />
@@ -205,14 +270,13 @@ export default function ImageUploader({
         />
 
         <p style={{ color: 'var(--color-text)', marginBottom: '0.5rem', fontWeight: 500 }}>
-          {uploading ? 'Uploading...' : 'Drop images here or click to browse'}
+          {isUploading ? 'Preparing uploads...' : 'Drop images here or click to browse'}
         </p>
         <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem' }}>
-          PNG, JPG, WebP, GIF up to 10MB (max {maxImages} images)
+          PNG, JPG, WebP, GIF up to 10MB after compression (max {maxImages} images)
         </p>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div
           style={{
@@ -229,87 +293,205 @@ export default function ImageUploader({
         </div>
       )}
 
-      {/* Image Grid */}
-      {images.length > 0 && (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-            gap: '1rem',
-          }}
-        >
-          {images.map((image) => (
+      {uploadItems.length > 0 && (
+        <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1.25rem' }}>
+          {uploadItems.map((item) => (
             <div
-              key={image.id}
+              key={item.id}
               style={{
-                position: 'relative',
-                aspectRatio: '1',
-                borderRadius: '8px',
-                overflow: 'hidden',
+                display: 'grid',
+                gridTemplateColumns: '48px 1fr',
+                gap: '0.75rem',
+                alignItems: 'center',
+                padding: '0.75rem',
                 border: '1px solid var(--color-border)',
-                backgroundColor: '#f9fafb',
+                borderRadius: '8px',
+                background: item.status === 'failed' ? '#fef2f2' : '#fff',
               }}
             >
-              <Image
-                src={image.url}
-                alt={image.filename}
-                fill
-                style={{ objectFit: 'cover' }}
-                sizes="150px"
-              />
-
-              {/* Delete Button */}
-              <button
-                onClick={() => handleDelete(image.id)}
+              <div
                 style={{
-                  position: 'absolute',
-                  top: '0.5rem',
-                  right: '0.5rem',
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '28px',
-                  height: '28px',
+                  position: 'relative',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '6px',
+                  overflow: 'hidden',
+                  background: '#f1f5f9',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ef4444';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
                 }}
               >
-                <X size={16} />
-              </button>
-
-              {/* Filename and size tooltip */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white',
-                  padding: '0.25rem 0.5rem',
-                  fontSize: '0.75rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {image.filename}
-                <div style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '0.125rem' }}>
-                  {(image.size / (1024 * 1024)).toFixed(2)} MB
+                {item.previewUrl ? (
+                  <Image src={item.previewUrl} alt="" fill style={{ objectFit: 'cover' }} sizes="48px" unoptimized />
+                ) : (
+                  <ImageIcon size={20} />
+                )}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem' }}>
+                  <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</strong>
+                  <span style={{ fontSize: '0.8rem', color: item.status === 'failed' ? '#b91c1c' : 'var(--color-muted)' }}>
+                    {statusLabel(item.status)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', color: item.status === 'failed' ? '#991b1b' : 'var(--color-muted)' }}>
+                  {['queued', 'compressing', 'uploading', 'saving'].includes(item.status) && <Loader2 size={14} />}
+                  {item.status === 'done' && <CheckCircle size={14} />}
+                  {item.status === 'failed' && <AlertCircle size={14} />}
+                  <span>
+                    {item.message || `${formatImageSize(item.originalSize)} selected`}
+                    {item.finalSize && item.finalSize !== item.originalSize ? ` (${formatImageSize(item.finalSize)})` : ''}
+                  </span>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {images.length > 0 && (
+        <div style={{ display: 'grid', gap: '0.75rem' }}>
+          {onCoverImageChange && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+              <p style={{ margin: 0, color: 'var(--color-muted)', fontSize: '0.875rem' }}>
+                Cover image: {coverImageId ? 'selected below' : 'Auto (first image)'}
+              </p>
+              {coverImageId && (
+                <button
+                  type="button"
+                  onClick={() => onCoverImageChange('')}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--color-primary)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    padding: 0,
+                  }}
+                >
+                  Use first image automatically
+                </button>
+              )}
+            </div>
+          )}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+              gap: '1rem',
+            }}
+          >
+            {images.map((image, index) => {
+              const isCover = coverImageId ? coverImageId === image.id : index === 0;
+
+              return (
+                <div
+                  key={image.id}
+                  style={{
+                    position: 'relative',
+                    aspectRatio: '1',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    border: isCover ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                    backgroundColor: '#f9fafb',
+                  }}
+                >
+                  <Image src={image.url} alt={image.filename} fill style={{ objectFit: 'cover' }} sizes="150px" />
+
+                  {isCover && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '0.5rem',
+                        left: '0.5rem',
+                        backgroundColor: 'rgba(37, 99, 235, 0.95)',
+                        color: 'white',
+                        borderRadius: '999px',
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      Cover
+                    </div>
+                  )}
+
+                  {onCoverImageChange && !isCover && (
+                    <button
+                      type="button"
+                      onClick={() => onCoverImageChange(image.id)}
+                      title="Set as cover"
+                      style={{
+                        position: 'absolute',
+                        top: '0.5rem',
+                        left: '0.5rem',
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '999px',
+                        height: '28px',
+                        padding: '0 0.55rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        cursor: 'pointer',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      <Star size={13} />
+                      Cover
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(image.id)}
+                    style={{
+                      position: 'absolute',
+                      top: '0.5rem',
+                      right: '0.5rem',
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <X size={16} />
+                  </button>
+
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                      color: 'white',
+                      padding: '0.25rem 0.5rem',
+                      fontSize: '0.75rem',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {image.filename}
+                    <div style={{ fontSize: '0.65rem', opacity: 0.8, marginTop: '0.125rem' }}>
+                      {formatImageSize(image.size)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

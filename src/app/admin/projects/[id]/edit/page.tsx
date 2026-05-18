@@ -205,26 +205,14 @@ export default function EditProject() {
 
         <div>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Images</label>
-          <ImageUploader images={images} onImagesChange={setImages} maxImages={10} />
+          <ImageUploader
+            images={images}
+            onImagesChange={setImages}
+            maxImages={10}
+            coverImageId={coverImageId}
+            onCoverImageChange={setCoverImageId}
+          />
         </div>
-
-        {images.length > 0 && (
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Cover Image</label>
-            <select
-              value={coverImageId}
-              onChange={e => setCoverImageId(e.target.value)}
-              style={{ maxWidth: '300px' }}
-            >
-              <option value="">Auto (first image)</option>
-              {images.map(img => (
-                <option key={img.id} value={img.id}>
-                  {img.filename}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
             <button
