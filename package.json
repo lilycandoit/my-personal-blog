@@ -13,6 +13,7 @@
     "change-email": "tsx scripts/change-admin-email.ts"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.6",
     "@prisma/client": "^5.22.0",
     "@tailwindcss/typography": "^0.5.19",
     "@tiptap/extension-color": "^3.16.0",
