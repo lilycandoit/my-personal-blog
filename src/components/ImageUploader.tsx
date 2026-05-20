@@ -17,6 +17,7 @@ type UploadStatus = 'queued' | 'compressing' | 'uploading' | 'saving' | 'done' |
 
 interface UploadItem {
   id: string;
+  imageId?: string;
   name: string;
   originalSize: number;
   finalSize?: number;
@@ -196,6 +197,7 @@ export default function ImageUploader({
         const data = await dbResponse.json();
         uploadedImages.push(data.image);
         updateUploadItem(item.id, {
+          imageId: data.image.id,
           status: 'done',
           message: prepared.compressed ? `Compressed to ${formatImageSize(prepared.finalSize)}` : 'Uploaded',
         });
@@ -213,17 +215,21 @@ export default function ImageUploader({
   };
 
   const handleDelete = async (imageId: string) => {
+    setError(null);
+
     try {
       const response = await fetch(`/api/images/${imageId}`, {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete image');
+      if (!response.ok && response.status !== 404) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.error || 'Failed to delete image');
       }
 
       const nextImages = images.filter((img) => img.id !== imageId);
       onImagesChange(nextImages);
+      setUploadItems((items) => items.filter((item) => item.imageId !== imageId));
 
       if (coverImageId === imageId) {
         onCoverImageChange?.('');
