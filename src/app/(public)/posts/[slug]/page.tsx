@@ -51,15 +51,16 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <h1 className="m-0 text-[2.5rem] leading-tight font-bold">
             {post.title}
           </h1>
-          <div className="text-base">
-            <span className="date">
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-base text-muted-light dark:text-muted-dark">
+            <span>
               {formattedDate}
               {wasEdited && (
                 <span className="text-sm text-primary ml-2">(Updated)</span>
               )}
             </span>
-            <span className="mx-2 text-border-light dark:text-border-dark">|</span>
-            <span className="tag">{post.category}</span>
+            <span className="inline-flex rounded-md bg-sky-100 px-3 py-1 text-sm font-semibold text-sky-700">
+              {post.category}
+            </span>
           </div>
         </header>
 
@@ -103,10 +104,10 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         )}
 
         {/* Footer */}
-        <div className="border-t border-border-light dark:border-border-dark shadow-[0_-2px_8px_rgba(0,0,0,0.03)] pt-8 mt-16">
+        <div className="border-t border-border-light dark:border-border-dark pt-8 mt-16">
           <Link
             href="/posts"
-            className="text-muted-light dark:text-muted-dark border-none no-underline font-ui text-[0.95rem] hover:text-primary"
+            className="text-muted-light dark:text-muted-dark border-none no-underline text-base hover:text-primary"
           >
             ← Back to Posts
           </Link>

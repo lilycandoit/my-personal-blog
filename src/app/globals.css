@@ -68,6 +68,7 @@
   input[type="email"],
   input[type="password"],
   input[type="url"],
+  input[type="month"],
   select,
   textarea {
     @apply w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-xl;
@@ -113,11 +114,36 @@
 
   .admin-sidebar {
     @apply w-[280px] bg-white dark:bg-surface-dark border-r border-border-light dark:border-border-dark;
-    @apply p-10 px-6 flex flex-col gap-2 flex-shrink-0;
+    @apply fixed inset-y-0 left-0 z-40 p-10 px-6 flex flex-col gap-2 flex-shrink-0;
+    @apply transition-all duration-200;
   }
 
   .admin-main {
-    @apply flex-1 p-12 overflow-y-auto bg-gray-50 dark:bg-background-dark;
+    @apply min-h-screen flex-1 overflow-y-auto bg-gray-50 p-12 dark:bg-background-dark;
+    @apply ml-[280px] transition-all duration-200;
+  }
+
+  .sidebar-collapsed .admin-sidebar {
+    @apply w-[76px] px-4;
+  }
+
+  .sidebar-collapsed .admin-main {
+    @apply ml-[76px];
+  }
+
+  .admin-sidebar-title,
+  .admin-nav-text {
+    @apply whitespace-nowrap transition-opacity duration-150;
+  }
+
+  .sidebar-collapsed .admin-sidebar-title,
+  .sidebar-collapsed .admin-nav-text {
+    @apply pointer-events-none w-0 overflow-hidden opacity-0;
+  }
+
+  .admin-sidebar-toggle {
+    @apply flex h-9 w-9 flex-none items-center justify-center rounded-lg border border-border-light bg-white text-muted-light;
+    @apply transition-all duration-200 hover:border-primary hover:bg-primary/10 hover:text-primary dark:border-border-dark dark:bg-surface-dark dark:text-muted-dark;
   }
 
   .admin-nav-link {
@@ -143,6 +169,28 @@
 
   .admin-table-row:hover {
     @apply bg-gray-100 dark:bg-surface-dark;
+  }
+
+  .admin-main label {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  .admin-main input[type="text"],
+  .admin-main input[type="email"],
+  .admin-main input[type="password"],
+  .admin-main input[type="url"],
+  .admin-main input[type="month"],
+  .admin-main select,
+  .admin-main textarea {
+    @apply bg-white text-gray-900 placeholder:text-slate-400 dark:bg-surface-dark dark:text-gray-100 dark:placeholder:text-slate-500;
+  }
+
+  .admin-help-text {
+    @apply mt-1 font-ui text-sm leading-snug text-muted-light dark:text-muted-dark;
+  }
+
+  .admin-form-grid {
+    @apply grid gap-6 md:grid-cols-2;
   }
 }
 
@@ -476,6 +524,11 @@
   }
 
   .admin-sidebar {
-    @apply w-full border-r-0 border-b p-6;
+    @apply static w-full border-r-0 border-b p-6;
+  }
+
+  .admin-main,
+  .sidebar-collapsed .admin-main {
+    @apply ml-0;
   }
 }

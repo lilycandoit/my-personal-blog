@@ -129,22 +129,7 @@ export default function EditProject() {
           />
         </div>
 
-        <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Description (Detailed)</label>
-            <Editor value={description} onChange={setDescription} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Tech Stack</label>
-                <input
-                    type="text"
-                    placeholder="React, Next.js..."
-                    value={stack}
-                    onChange={(e) => setStack(e.target.value)}
-                    required
-                />
-            </div>
+        <div className="admin-form-grid">
             <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Status</label>
                 <select
@@ -155,19 +140,55 @@ export default function EditProject() {
                     <option value="completed">Completed</option>
                 </select>
             </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Built Date (Optional)</label>
+              <input
+                type="month"
+                value={builtDate}
+                onChange={e => setBuiltDate(e.target.value)}
+              />
+              <p className="admin-help-text">
+                When was this project actually built? (e.g., Jan 2024)
+              </p>
+            </div>
         </div>
 
         <div>
-           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>What worked? What didn&apos;t?</label>
-           <textarea
-               style={{ minHeight: '100px' }}
-               value={learnings}
-               onChange={(e) => setLearnings(e.target.value)}
-               placeholder="Key takeaways..."
-           ></textarea>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Images</label>
+          <ImageUploader
+            images={images}
+            onImagesChange={setImages}
+            maxImages={10}
+            coverImageId={coverImageId}
+            onCoverImageChange={setCoverImageId}
+          />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div>
+           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Summary</label>
+           <textarea
+               style={{ minHeight: '80px' }}
+               value={learnings}
+               onChange={(e) => setLearnings(e.target.value)}
+               placeholder="One sentence or key takeaway people should remember about this project."
+           ></textarea>
+           <p className="admin-help-text">
+             This appears in the left sidebar above Tech Stack.
+           </p>
+        </div>
+
+        <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Tech Stack</label>
+            <input
+                type="text"
+                placeholder="React, Next.js..."
+                value={stack}
+                onChange={(e) => setStack(e.target.value)}
+                required
+            />
+        </div>
+
+        <div className="admin-form-grid">
              <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>GitHub URL (Optional)</label>
                 <input type="url" value={githubUrl} onChange={e => setGithubUrl(e.target.value)} />
@@ -186,32 +207,14 @@ export default function EditProject() {
             value={demoVideoUrl}
             onChange={e => setDemoVideoUrl(e.target.value)}
           />
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
+          <p className="admin-help-text">
             For longer demos, paste a YouTube/Vimeo link
           </p>
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Built Date (Optional)</label>
-          <input
-            type="month"
-            value={builtDate}
-            onChange={e => setBuiltDate(e.target.value)}
-          />
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginTop: '0.25rem' }}>
-            When was this project actually built? (e.g., Jan 2024)
-          </p>
-        </div>
-
-        <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Project Images</label>
-          <ImageUploader
-            images={images}
-            onImagesChange={setImages}
-            maxImages={10}
-            coverImageId={coverImageId}
-            onCoverImageChange={setCoverImageId}
-          />
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Description (Detailed)</label>
+            <Editor value={description} onChange={setDescription} />
         </div>
 
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
