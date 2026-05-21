@@ -68,7 +68,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
     <article className="px-5 py-8 md:px-8">
       <div className="mx-auto max-w-[1180px] pb-16">
         <header className="mb-8">
-          <h1 className="m-0 max-w-[900px] text-[2.35rem] leading-tight md:text-[3rem]">
+          <h1 className="m-0 max-w-[1200px] text-[2.35rem] leading-tight md:text-[3rem]">
             {project.name}
           </h1>
 
