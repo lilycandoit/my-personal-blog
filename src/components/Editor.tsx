@@ -16,6 +16,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   CheckSquare, Link as LinkIcon, Image as ImageIcon,
   Quote, Redo, Undo, AlignLeft, AlignCenter, AlignRight,
+  Code2, FileCode2,
   type LucideIcon
 } from 'lucide-react';
 import { formatImageSize, prepareImageForUpload } from '@/lib/imageCompression';
@@ -30,6 +31,120 @@ const MAX_INLINE_IMAGE_SIZE = 10 * 1024 * 1024;
 
 function getImageFiles(files: FileList | File[]): File[] {
   return Array.from(files).filter((file) => file.type.startsWith('image/'));
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function applyInlineMarkdown(value: string) {
+  let html = escapeHtml(value);
+
+  html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+  html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2">$1</a>');
+  html = html.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__([^_\n]+)__/g, '<strong>$1</strong>');
+  html = html.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  html = html.replace(/(^|[^_])_([^_\n]+)_(?!_)/g, '$1<em>$2</em>');
+
+  return html;
+}
+
+function looksLikeMarkdown(text: string) {
+  return /(^|\n)(#{1,3}\s|[-*]\s|\d+\.\s|>\s|```)|`[^`\n]+`|\[[^\]]+\]\(https?:\/\/[^)\s]+\)|\*\*[^*\n]+\*\*/.test(text);
+}
+
+function markdownTextToHtml(text: string) {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const blocks: string[] = [];
+  let index = 0;
+
+  const closeParagraph = (paragraphLines: string[]) => {
+    if (paragraphLines.length === 0) return;
+    blocks.push(`<p>${applyInlineMarkdown(paragraphLines.join(' '))}</p>`);
+    paragraphLines.length = 0;
+  };
+
+  while (index < lines.length) {
+    const line = lines[index];
+
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fence = line.match(/^```(\w+)?\s*$/);
+    if (fence) {
+      const codeLines: string[] = [];
+      index += 1;
+
+      while (index < lines.length && !/^```\s*$/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+
+      if (index < lines.length) index += 1;
+      const languageClass = fence[1] ? ` class="language-${escapeHtml(fence[1])}"` : '';
+      blocks.push(`<pre><code${languageClass}>${escapeHtml(codeLines.join('\n'))}</code></pre>`);
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) {
+      const level = Math.min(heading[1].length, 3);
+      blocks.push(`<h${level}>${applyInlineMarkdown(heading[2].trim())}</h${level}>`);
+      index += 1;
+      continue;
+    }
+
+    const quoteLines: string[] = [];
+    while (index < lines.length && /^>\s?/.test(lines[index])) {
+      quoteLines.push(lines[index].replace(/^>\s?/, ''));
+      index += 1;
+    }
+    if (quoteLines.length > 0) {
+      blocks.push(`<blockquote><p>${applyInlineMarkdown(quoteLines.join(' '))}</p></blockquote>`);
+      continue;
+    }
+
+    const bulletItems: string[] = [];
+    while (index < lines.length && /^\s*[-*]\s+/.test(lines[index])) {
+      bulletItems.push(lines[index].replace(/^\s*[-*]\s+/, ''));
+      index += 1;
+    }
+    if (bulletItems.length > 0) {
+      blocks.push(`<ul>${bulletItems.map((item) => `<li><p>${applyInlineMarkdown(item)}</p></li>`).join('')}</ul>`);
+      continue;
+    }
+
+    const orderedItems: string[] = [];
+    while (index < lines.length && /^\s*\d+\.\s+/.test(lines[index])) {
+      orderedItems.push(lines[index].replace(/^\s*\d+\.\s+/, ''));
+      index += 1;
+    }
+    if (orderedItems.length > 0) {
+      blocks.push(`<ol>${orderedItems.map((item) => `<li><p>${applyInlineMarkdown(item)}</p></li>`).join('')}</ol>`);
+      continue;
+    }
+
+    const paragraphLines: string[] = [];
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !/^(#{1,3}\s|```|>\s?|[-*]\s+|\d+\.\s+)/.test(lines[index])
+    ) {
+      paragraphLines.push(lines[index].trim());
+      index += 1;
+    }
+    closeParagraph(paragraphLines);
+  }
+
+  return blocks.join('');
 }
 
 async function prepareInlineImage(file: File) {
@@ -184,6 +299,8 @@ const MenuBar = ({
 
       <Divider />
 
+      <ToolButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive('code')} title="Inline Code" Icon={Code2} />
+      <ToolButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive('codeBlock')} title="Code Block" Icon={FileCode2} />
       <ToolButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive('blockquote')} title="Quote" Icon={Quote} />
       <ToolButton onClick={addLink} isActive={editor.isActive('link')} title="Add Link" Icon={LinkIcon} />
       <ToolButton
@@ -334,10 +451,18 @@ export default function Editor({ value, onChange }: EditorProps) {
       },
       handlePaste: (_view, event) => {
         const files = event.clipboardData?.files ? getImageFiles(event.clipboardData.files) : [];
-        if (files.length === 0) return false;
+        if (files.length > 0) {
+          event.preventDefault();
+          void insertInlineImages(files);
+          return true;
+        }
+
+        const plainText = event.clipboardData?.getData('text/plain') || '';
+        const htmlText = event.clipboardData?.getData('text/html') || '';
+        if (!plainText.trim() || htmlText || !looksLikeMarkdown(plainText)) return false;
 
         event.preventDefault();
-        void insertInlineImages(files);
+        editorRef.current?.chain().focus().insertContent(markdownTextToHtml(plainText)).run();
         return true;
       },
       handleDrop: (view, event, _slice, moved) => {

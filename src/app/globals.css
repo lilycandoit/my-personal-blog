@@ -374,6 +374,25 @@
   @apply text-primary underline underline-offset-4;
 }
 
+.tiptap code,
+.content code,
+.prose code {
+  @apply rounded-md bg-slate-100 px-1.5 py-0.5 font-ui text-[0.9em] font-semibold text-slate-900;
+  @apply dark:bg-slate-800 dark:text-slate-100;
+}
+
+.tiptap pre,
+.content pre,
+.prose pre {
+  @apply my-6 overflow-x-auto rounded-xl bg-slate-950 p-4 text-slate-100;
+}
+
+.tiptap pre code,
+.content pre code,
+.prose pre code {
+  @apply bg-transparent p-0 font-mono text-sm font-normal leading-relaxed text-inherit;
+}
+
 .tiptap strong,
 .content strong,
 .prose strong {
