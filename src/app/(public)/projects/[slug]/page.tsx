@@ -137,7 +137,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
                     href={project.demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg border border-primary bg-white px-4 py-3 text-center font-ui text-sm font-semibold text-primary hover:bg-primary/10"
+                    className="rounded-lg border border-primary bg-white px-4 py-3 text-center font-ui text-sm font-semibold text-primary hover:bg-primary/10 dark:bg-surface-dark dark:text-gray-100 dark:hover:bg-primary/20"
                   >
                     Live
                   </a>
@@ -149,7 +149,7 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
           <main className="min-w-0">
             <section className="mb-12">
               <div
-                className="prose prose-lg max-w-none text-xl font-body leading-[1.8]"
+                className="prose prose-lg max-w-none text-xl font-body leading-[1.8] text-gray-700 dark:text-gray-200"
                 dangerouslySetInnerHTML={{ __html: project.description }}
               />
             </section>
