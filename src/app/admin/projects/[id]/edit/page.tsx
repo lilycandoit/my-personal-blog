@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
+import ProjectPreviewModal from '@/components/admin/ProjectPreviewModal';
 
 interface UploadedImage {
   id: string;
@@ -29,6 +30,7 @@ export default function EditProject() {
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const router = useRouter();
 
   // Fetch existing project data
@@ -234,6 +236,23 @@ export default function EditProject() {
                 Cancel
             </button>
             <button
+                type="button"
+                onClick={() => {
+                  window.setTimeout(() => setPreviewOpen(true), 0);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#f1f5f9',
+                  color: '#334155',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+            >
+                Preview
+            </button>
+            <button
                 type="submit"
                 disabled={loading}
                 className="primary"
@@ -243,6 +262,22 @@ export default function EditProject() {
             </button>
         </div>
       </form>
+
+      {previewOpen && (
+        <ProjectPreviewModal
+          name={name}
+          description={description}
+          stack={stack}
+          status={status}
+          summary={learnings}
+          githubUrl={githubUrl}
+          demoUrl={demoUrl}
+          builtDate={builtDate}
+          images={images}
+          coverImageId={coverImageId}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 }

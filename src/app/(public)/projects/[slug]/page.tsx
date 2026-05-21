@@ -98,6 +98,8 @@ export default async function Project({ params }: { params: Promise<{ slug: stri
               aspectRatio="16/9"
               objectFit="cover"
               borderRadius="12px"
+              sizes="(max-width: 768px) 100vw, 1180px"
+              quality={95}
             />
           </section>
         )}

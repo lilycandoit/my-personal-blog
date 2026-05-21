@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Editor from '@/components/Editor';
 import ImageUploader from '@/components/ImageUploader';
+import ProjectPreviewModal from '@/components/admin/ProjectPreviewModal';
 
 interface UploadedImage {
   id: string;
@@ -27,6 +28,7 @@ export default function NewProject() {
   const [coverImageId, setCoverImageId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const hasPromptedRef = useRef(false);
   const router = useRouter();
 
@@ -233,7 +235,24 @@ export default function NewProject() {
             <Editor value={description} onChange={setDescription} />
         </div>
 
-        <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', justifySelf: 'flex-end', justifyContent: 'flex-end', gap: '1rem' }}>
+            <button
+                type="button"
+                onClick={() => {
+                  window.setTimeout(() => setPreviewOpen(true), 0);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#f1f5f9',
+                  color: '#334155',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+            >
+                Preview
+            </button>
             <button
                 type="submit"
                 disabled={loading}
@@ -244,6 +263,22 @@ export default function NewProject() {
             </button>
         </div>
       </form>
+
+      {previewOpen && (
+        <ProjectPreviewModal
+          name={name}
+          description={description}
+          stack={stack}
+          status={status}
+          summary={learnings}
+          githubUrl={githubUrl}
+          demoUrl={demoUrl}
+          builtDate={builtDate}
+          images={images}
+          coverImageId={coverImageId}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -11,6 +11,8 @@ interface ImageWithZoomProps {
   objectFit?: 'cover' | 'contain';
   aspectRatio?: string;
   borderRadius?: string;
+  sizes?: string;
+  quality?: number;
 }
 
 export default function ImageWithZoom({
@@ -21,6 +23,8 @@ export default function ImageWithZoom({
   objectFit = 'cover',
   aspectRatio,
   borderRadius = '12px',
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+  quality,
 }: ImageWithZoomProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -57,7 +61,8 @@ export default function ImageWithZoom({
             height: '100%',
             objectFit,
           }}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={sizes}
+          quality={quality}
         />
       </div>
 
@@ -100,6 +105,7 @@ export default function ImageWithZoom({
                 objectFit: 'contain',
               }}
               sizes="90vw"
+              quality={quality}
             />
           </div>
           <button
