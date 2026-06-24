@@ -43,9 +43,9 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
   const imageAlt = coverImage?.alt || post.title;
 
   return (
-    <article className="m-8 p-0">
+    <article className="mx-4 my-4 p-0 sm:mx-4 md:m-8">
       {/* Main Content Container */}
-      <div className="max-w-[900px] mx-auto px-8 pb-16">
+      <div className="max-w-[900px] mx-auto px-6 pb-12 sm:px-5 md:px-8 md:pb-16">
         {/* Header with Title First, Then Meta */}
         <header className="mb-8">
           <h1 className="m-0 text-[2.5rem] leading-tight font-bold">

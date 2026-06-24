@@ -41,7 +41,8 @@ export default async function Home() {
     // Use coverImageId if set, otherwise fall back to first image
     const coverImage = post.images?.find((img: any) => img.id === post.coverImageId) || post.images?.[0] || null;
     const formattedDate = formatDate(dateToShow, post.timezone, post.location, 'full');
-    return { dateToShow, coverImage, wasEdited, formattedDate };
+    const compactDate = formatDate(dateToShow, post.timezone, post.location, 'date');
+    return { dateToShow, coverImage, wasEdited, formattedDate, compactDate };
   };
 
   const [latestBig, ...latestCompact] = latestPosts;
@@ -52,7 +53,7 @@ export default async function Home() {
       <Hero />
 
       {/* Quote + Reminder Section */}
-      <div className="max-w-[1280px] mx-auto px-8 pt-12">
+      <div className="max-w-[1280px] mx-auto px-4 pt-12 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <DailyQuote />
           <KindReminder />
@@ -60,7 +61,7 @@ export default async function Home() {
       </div>
 
       {/* Main Content: Two Column Layout */}
-      <div className="max-w-[1280px] mx-auto px-8 pb-16">
+      <div className="max-w-[1280px] mx-auto px-4 pb-16 md:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12">
           {/* LEFT: Latest Posts */}
           <div>
@@ -122,7 +123,7 @@ export default async function Home() {
             {/* Compact Latest Posts */}
             <div className="flex flex-col gap-6">
               {latestCompact.map((post) => {
-                const { coverImage, wasEdited, formattedDate } = getPostMeta(post);
+                const { coverImage, wasEdited, formattedDate, compactDate } = getPostMeta(post);
                 const imageUrl = coverImage?.url || '/sunshine_leaves.avif';
                 return (
                   <Link
@@ -130,27 +131,28 @@ export default async function Home() {
                     href={`/posts/${post.slug}`}
                     className="border-0 no-underline hover:bg-transparent"
                   >
-                    <div className="flex gap-6 p-6 rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark transition-all duration-200 hover:shadow-md hover:-translate-y-1">
+                    <div className="flex gap-3 rounded-xl border border-border-light bg-surface-light p-3 transition-all duration-200 hover:shadow-md hover:-translate-y-1 dark:border-border-dark dark:bg-surface-dark md:gap-6 md:p-6">
                       <Image
                         src={imageUrl}
                         alt={coverImage?.alt || post.title}
                         width={150}
                         height={150}
-                        className="w-[150px] h-[150px] object-cover rounded-lg flex-shrink-0"
-                        sizes="150px"
+                        className="h-24 w-24 flex-shrink-0 rounded-lg object-cover sm:h-28 sm:w-28 md:h-[150px] md:w-[150px]"
+                        sizes="(max-width: 640px) 96px, (max-width: 768px) 112px, 150px"
                       />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <span className="px-2.5 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-primary text-xs font-semibold font-hand">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1.5 flex flex-wrap items-center gap-1.5 md:mb-2 md:gap-3">
+                          <span className="rounded bg-blue-50 px-2 py-0.5 font-hand text-[0.7rem] font-semibold text-primary dark:bg-blue-900/30 md:px-2.5 md:py-1 md:text-xs">
                             {post.category}
                           </span>
                           {post.featured && (
-                            <span className="px-2.5 py-1 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-[0.65rem] font-bold font-hand uppercase tracking-wide">
+                            <span className="rounded bg-yellow-100 px-2 py-0.5 font-hand text-[0.65rem] font-bold uppercase tracking-wide text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200 md:px-2.5 md:py-1">
                               ⭐ Featured
                             </span>
                           )}
-                          <span className="text-sm text-muted-light dark:text-muted-dark font-hand">
-                            {formattedDate}
+                          <span className="basis-full font-hand text-xs text-muted-light dark:text-muted-dark md:basis-auto md:text-sm">
+                            <span className="md:hidden">{compactDate}</span>
+                            <span className="hidden md:inline">{formattedDate}</span>
                             {wasEdited && (
                               <span className="text-xs text-primary ml-2">
                                 (Updated)
@@ -158,10 +160,10 @@ export default async function Home() {
                             )}
                           </span>
                         </div>
-                        <h4 className="m-0 mb-2 text-xl text-gray-800 dark:text-gray-100 font-hand font-semibold leading-tight">
+                        <h4 className="m-0 mb-1 line-clamp-2 font-hand text-base font-semibold leading-tight text-gray-800 dark:text-gray-100 md:mb-2 md:text-xl">
                           {post.title}
                         </h4>
-                        <p className="m-0 text-[0.95rem] text-gray-600 dark:text-gray-400 leading-normal font-hand">
+                        <p className="m-0 line-clamp-1 font-hand text-sm leading-normal text-gray-600 dark:text-gray-400 md:text-[0.95rem]">
                           <span dangerouslySetInnerHTML={{ __html: post.content.replace(/<[^>]*>/g, '').slice(0, 100) + '...' }} />
                         </p>
                       </div>

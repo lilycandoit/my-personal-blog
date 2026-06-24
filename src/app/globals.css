@@ -374,11 +374,45 @@
   @apply text-primary underline underline-offset-4;
 }
 
+.content,
+.prose {
+  @apply text-gray-800 dark:text-gray-300;
+}
+
+.dark .content,
+.dark .prose {
+  --tw-prose-body: #d1d5db;
+  --tw-prose-headings: #e5e7eb;
+  --tw-prose-lead: #cbd5e1;
+  --tw-prose-links: #7db0f7;
+  --tw-prose-bold: #e5e7eb;
+  --tw-prose-counters: #cbd5e1;
+  --tw-prose-bullets: #8da1b9;
+  --tw-prose-hr: #1f2937;
+  --tw-prose-quotes: #d1d5db;
+  --tw-prose-quote-borders: #2a4a6a;
+  --tw-prose-captions: #cbd5e1;
+  --tw-prose-code: #e2e8f0;
+  --tw-prose-pre-code: #e2e8f0;
+  --tw-prose-pre-bg: #020617;
+  --tw-prose-th-borders: #334155;
+  --tw-prose-td-borders: #1f2937;
+}
+
 .tiptap code,
 .content code,
 .prose code {
   @apply rounded-md bg-slate-100 px-1.5 py-0.5 font-ui text-[0.9em] font-semibold text-slate-900;
   @apply dark:bg-slate-800 dark:text-slate-100;
+}
+
+.tiptap code::before,
+.tiptap code::after,
+.content code::before,
+.content code::after,
+.prose code::before,
+.prose code::after {
+  content: none;
 }
 
 .tiptap pre,
