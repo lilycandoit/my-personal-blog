@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Duong's",
     description: 'One step at a time.',
-    url: 'https://liduong.com',
+    url: 'https://me-blog-au.vercel.app',
     siteName: "Duong's",
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
     type: 'website',
