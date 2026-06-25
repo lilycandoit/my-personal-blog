@@ -15,8 +15,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'My Personal Space',
-  description: 'A personal thinking and learning space.',
+  metadataBase: new URL('https://me-blog-au.vercel.app'),
+  title: "Duong's",
+  description: 'One step at a time.',
+  openGraph: {
+    title: "Duong's",
+    description: 'One step at a time.',
+    url: 'https://liduong.com',
+    siteName: "Duong's",
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Duong's",
+    description: 'One step at a time.',
+    images: ['/og-image.png'],
+  },
 };
 
 export default function RootLayout({
