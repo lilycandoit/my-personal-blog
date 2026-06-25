@@ -379,6 +379,11 @@
   @apply text-gray-800 dark:text-gray-300;
 }
 
+.dark .content [style*="color:"],
+.dark .prose [style*="color:"] {
+  color: inherit !important;
+}
+
 .dark .content,
 .dark .prose {
   --tw-prose-body: #d1d5db;

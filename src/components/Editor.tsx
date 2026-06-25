@@ -6,8 +6,6 @@ import Image from '@tiptap/extension-image';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import Typography from '@tiptap/extension-typography';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -436,8 +434,6 @@ export default function Editor({ value, onChange }: EditorProps) {
       TaskItem.configure({
         nested: true,
       }),
-      TextStyle,
-      Color,
       Highlight.configure({ multicolor: true }),
       Underline,
       TextAlign.configure({
@@ -448,6 +444,9 @@ export default function Editor({ value, onChange }: EditorProps) {
     editorProps: {
       attributes: {
         class: 'tiptap',
+      },
+      transformPastedHTML(html) {
+        return html.replace(/(^|;)\s*color\s*:[^;]*;?/g, '$1');
       },
       handlePaste: (_view, event) => {
         const files = event.clipboardData?.files ? getImageFiles(event.clipboardData.files) : [];
